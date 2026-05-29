@@ -42,10 +42,10 @@ class DirectorController extends Controller
             'Miscellaneous'
         ];
 
-        $raw = Expense::with('allocation')
-            ->get()
-            ->groupBy(fn($e) => $e->allocation->category ?? 'Miscellaneous')
-            ->map(fn($group) => $group->sum('amount'));
+        $raw = Expense::selectRaw('category, SUM(amount) as total')
+            ->whereNotNull('category')
+            ->groupBy('category')
+            ->pluck('total', 'category');
 
         $expenseByCategory = collect($categories)->mapWithKeys(function ($cat) use ($raw) {
             return [$cat => $raw[$cat] ?? 0];

@@ -101,6 +101,23 @@
             <input type="hidden" name="allocation_id" value="{{ $allocation->id }}">
             <input type="hidden" name="amount" id="amount_raw">
 
+            {{-- CATEGORY --}}
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Category</label>
+                <select name="category" class="form-control" required>
+                    <option value="" disabled selected>Select category…</option>
+                    @foreach ($categories as $cat)
+                        <option value="{{ $cat }}" {{ old('category') == $cat ? 'selected' : '' }}>
+                            {{ $cat }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('category')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+
+
             {{-- AMOUNT --}}
             <div class="mb-3">
                 <label class="form-label fw-semibold">Amount</label>

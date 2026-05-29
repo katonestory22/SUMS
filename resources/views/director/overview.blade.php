@@ -1,10 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Project Overview')
+@section('title', $project->project_name . ' — Overview')
 
 @section('sub-nav')
     <a href="{{ route('dashboard') }}">Dashboard</a>
-
 @endsection
 
 @section('content')
@@ -67,18 +66,6 @@
             color: white;
             background: #2563eb;
         }
-
-        .danger {
-            background: #dc2626;
-        }
-
-        .good {
-            background: #16a34a;
-        }
-
-        .warning {
-            background: #f59e0b;
-        }
     </style>
 
     <div class="container">
@@ -92,23 +79,19 @@
         {{-- FINANCE --}}
         <div class="card">
             <div class="section-title">Finance Overview</div>
-
             <div class="grid">
                 <div class="stat">
                     <h4>Contract</h4>
                     <p>TSh {{ number_format($project->contract_amount, 2) }}</p>
                 </div>
-
                 <div class="stat">
                     <h4>Allocated</h4>
                     <p>TSh {{ number_format($project->totalAllocated(), 2) }}</p>
                 </div>
-
                 <div class="stat">
                     <h4>Spent</h4>
                     <p>TSh {{ number_format($project->totalExpenses(), 2) }}</p>
                 </div>
-
                 <div class="stat">
                     <h4>Balance</h4>
                     <p>TSh {{ number_format($project->remainingBalance(), 2) }}</p>
@@ -119,17 +102,11 @@
         {{-- ALLOCATIONS --}}
         <div class="card">
             <div class="section-title">Allocations</div>
-
             @foreach ($project->allocations as $allocation)
                 <div class="item">
                     <strong>{{ $allocation->category }}</strong>
-                    <span style="float:right;">
-                        TSh {{ number_format($allocation->amount, 2) }}
-                    </span>
-
-                    <div style="font-size:12px;color:#6b7280;">
-                        {{ $allocation->allocation_date }}
-                    </div>
+                    <span style="float:right;">TSh {{ number_format($allocation->amount, 2) }}</span>
+                    <div style="font-size:12px;color:#6b7280;">{{ $allocation->allocation_date }}</div>
                 </div>
             @endforeach
         </div>
@@ -137,17 +114,29 @@
         {{-- EXPENSES --}}
         <div class="card">
             <div class="section-title">Expense History</div>
-
             @foreach ($project->allocations as $allocation)
                 @foreach ($allocation->expenses as $expense)
                     <div class="item">
                         <strong>{{ $expense->description }}</strong>
-                        <span style="float:right;">
-                            TSh {{ number_format($expense->amount, 2) }}
-                        </span>
-                        <div style="font-size:12px;color:#6b7280;">
-                            {{ $expense->date }}
-                        </div>
+                        <span style="float:right;">TSh {{ number_format($expense->amount, 2) }}</span>
+                        <div style="font-size:12px;color:#6b7280;">{{ $expense->date }}</div>
+
+                        @if ($expense->receipt)
+                            @php $receiptFile = basename($expense->receipt); @endphp
+                            <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+
+                                <img src="{{ asset('storage/receipts/' . $receiptFile) }}"
+                                    style="width:60px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;"
+                                    onerror="this.style.display='none'" />
+
+                                <a href="{{ route('file.download', ['type' => 'receipts', 'file' => $receiptFile]) }}"
+                                    style="font-size:12px; color:#2563eb; text-decoration:none;">
+                                    ⬇ Download Receipt
+                                </a>
+                            </div>
+                        @else
+                            <div style="font-size:12px;color:#9ca3af;margin-top:6px;">No receipt uploaded</div>
+                        @endif
                     </div>
                 @endforeach
             @endforeach
@@ -156,7 +145,6 @@
         {{-- PROGRESS --}}
         <div class="card">
             <div class="section-title">Project Progress</div>
-
             <p><strong>{{ $project->progress }}%</strong></p>
 
             @foreach ($project->phases as $phase)
@@ -165,18 +153,27 @@
                     <span class="badge">{{ round($phase->progress()) }}%</span>
 
                     @foreach ($phase->activities as $activity)
-                        <div style="margin-left:15px;font-size:13px;">
-                            • {{ $activity->name }}
-                            ({{ $activity->current_progress }}%)
+                        <div style="margin-left:15px; font-size:13px; margin-top:8px;">
+                            • {{ $activity->name }} ({{ $activity->current_progress }}%)
+
                             @if ($activity->evidences->count())
                                 <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
 
                                     @foreach ($activity->evidences->take(3) as $evidence)
-                                        <div
-                                            style="width:90px; height:90px; border-radius:8px; overflow:hidden; border:1px solid #e5e7eb; background:#f9fafb;">
+                                        @php $evidenceFile = basename($evidence->file_path); @endphp
+                                        <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
 
-                                            <img src="{{ asset('storage/' . $evidence->file_path) }}"
-                                                style="width:100%; height:100%; object-fit:cover;" />
+                                            <div
+                                                style="width:90px; height:90px; border-radius:8px; overflow:hidden; border:1px solid #e5e7eb; background:#f9fafb;">
+                                                <img src="{{ asset('storage/activity-evidence/' . $evidenceFile) }}"
+                                                    style="width:100%; height:100%; object-fit:cover;"
+                                                    onerror="this.style.display='none'" />
+                                            </div>
+
+                                            <a href="{{ route('file.download', ['type' => 'activity-evidence', 'file' => $evidenceFile]) }}"
+                                                style="font-size:11px; color:#2563eb; text-decoration:none;">
+                                                ⬇ Download
+                                            </a>
 
                                         </div>
                                     @endforeach
@@ -189,9 +186,7 @@
 
                                 </div>
                             @else
-                                <div style="font-size:12px;color:#9ca3af;margin-top:6px;">
-                                    No evidence uploaded
-                                </div>
+                                <div style="font-size:12px;color:#9ca3af;margin-top:6px;">No evidence uploaded</div>
                             @endif
                         </div>
                     @endforeach

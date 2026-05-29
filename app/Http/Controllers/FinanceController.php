@@ -33,7 +33,6 @@ class FinanceController extends Controller
             'Consulting',
             'Miscellaneous'
         ];
-
         // CASHFLOW (simple snapshot)
         $cashflow = [
             'allocated' => $totalAllocated,
@@ -44,9 +43,8 @@ class FinanceController extends Controller
         // EXPENSE BY CATEGORY (FIXED JOIN)
         $expenseByCategory = collect($categories)->map(function ($cat) {
             $total = DB::table('expenses')
-                ->join('allocations', 'expenses.allocation_id', '=', 'allocations.id')
-                ->where('allocations.category', $cat)
-                ->sum('expenses.amount');
+                ->where('category', $cat)
+                ->sum('amount');
 
             return [
                 'category' => $cat,

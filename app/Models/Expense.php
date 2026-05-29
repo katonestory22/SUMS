@@ -8,6 +8,7 @@ class Expense extends Model
 {
     protected $fillable = [
         'allocation_id',
+        'category',
         'amount',
         'description',
         'date',

@@ -11,9 +11,12 @@
 @section('content')
 
     <style>
-
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    </style>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
         body {
             font-family: 'Inter', sans-serif;
             background: #f4f6f9;
@@ -360,8 +363,10 @@
                         <input type="password" id="password" name="password">
 
                         <span onclick="togglePassword('password', this)"
-                            style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer;">
-                            👁
+                            style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:#6b7280;">
+
+                            <i class="fa-solid fa-eye"></i>
+
                         </span>
 
                         @error('password')
@@ -373,8 +378,10 @@
                         <input type="password" id="password_confirmation" name="password_confirmation">
 
                         <span onclick="togglePassword('password_confirmation', this)"
-                            style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer;">
-                            👁
+                            style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:#6b7280;">
+
+                            <i class="fa-solid fa-eye"></i>
+
                         </span>
                     </div>
 
@@ -415,9 +422,11 @@
         </div>
 
     </div>
+
     {{-- DELETE MODAL --}}
     <div id="deleteModal"
         style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:9999;">
+
         <div style="background:white; padding:25px; border-radius:12px; width:360px; text-align:center;">
 
             <h3 style="margin-bottom:10px;">Delete User?</h3>
@@ -427,6 +436,7 @@
             </p>
 
             <div style="display:flex; gap:10px; justify-content:center;">
+
                 <button type="button" onclick="closeDeleteModal()"
                     style="padding:10px 14px; border:1px solid #ccc; background:white; border-radius:8px; cursor:pointer;">
                     Cancel
@@ -440,11 +450,15 @@
                         style="padding:10px 14px; background:#dc2626; color:white; border:none; border-radius:8px; cursor:pointer;">
                         Delete
                     </button>
+
                 </form>
+
             </div>
 
         </div>
+
     </div>
+
     <script>
         function openDeleteModal() {
             document.getElementById('deleteModal').style.display = 'flex';
@@ -454,17 +468,28 @@
             document.getElementById('deleteModal').style.display = 'none';
         }
     </script>
+
     <script>
         function togglePassword(id, el) {
+
             const input = document.getElementById(id);
+            const icon = el.querySelector('i');
 
             if (input.type === "password") {
+
                 input.type = "text";
-                el.textContent = "🙈";
+
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+
             } else {
+
                 input.type = "password";
-                el.textContent = "👁";
+
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
         }
     </script>
+
 @endsection

@@ -17,10 +17,12 @@ use App\Http\Controllers\{
 };
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+
 
 Route::get('/', fn() => view('welcome'))->name('home');
 
-Route::middleware(['auth', 'verified', 'active' ])->group(function () {
+Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
     Route::get('/dashboard', function () {
         return match (auth()->user()->role) {
@@ -77,6 +79,26 @@ Route::middleware(['auth', 'verified', 'active' ])->group(function () {
         Route::get('/users', [DirectorController::class, 'users'])
             ->name('director.users');
     });
+
+
+    Route::get('/file/download/{type}/{file}', function ($type, $file) {
+
+        $allowed = ['receipts', 'activity-evidence'];
+
+        if (!in_array($type, $allowed)) {
+            abort(403);
+        }
+
+        $path = $type . '/' . $file;
+
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->download($path);
+
+    })->name('file.download');
+
 
     /*
     | PHASES + ACTIVITIES

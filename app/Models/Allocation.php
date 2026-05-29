@@ -8,7 +8,6 @@ class Allocation extends Model
 {
     protected $fillable = [
         'project_id',
-        'category',
         'amount',
         'allocation_date',
         'notes',

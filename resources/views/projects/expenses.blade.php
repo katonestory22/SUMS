@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Project Expenses')
-@section('page-title', 'Expense Ledger')
+@section('page-title', $project->project_name)
 
 @section('sub-nav')
     <a href="{{ route('dashboard') }}">Dashboard</a> |

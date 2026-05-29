@@ -145,20 +145,6 @@
                         </select>
                     </div>
 
-                    {{-- CATEGORY --}}
-                    <div>
-                        <label>Category</label>
-                        <select name="category" required>
-                            <option value="">Select category</option>
-                            <option value="Labour">Labour</option>
-                            <option value="Equipment">Equipment</option>
-                            <option value="Travel">Travel</option>
-                            <option value="Operations">Operations</option>
-                            <option value="Consulting">Consulting</option>
-                            <option value="Miscellaneous">Misc</option>
-                        </select>
-                    </div>
-
                     {{-- AMOUNT --}}
                     <div>
                         <label>Amount</label>

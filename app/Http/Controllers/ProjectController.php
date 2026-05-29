@@ -124,6 +124,7 @@ class ProjectController extends Controller
             'phases.activities.evidences',
         ]);
 
+
         return view('director.overview', compact('project'));
     }
 }

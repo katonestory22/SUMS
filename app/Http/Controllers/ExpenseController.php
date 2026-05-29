@@ -24,9 +24,17 @@ class ExpenseController extends Controller
         $spent = $allocation->expenses()->sum('amount');
         $remaining = $allocation->amount - $spent;
 
-        return view('expenses.create', compact('allocation', 'remaining'));
-    }
+        $categories = [
+            'Labour',
+            'Equipment',
+            'Travel',
+            'Operations',
+            'Consulting',
+            'Miscellaneous'
+        ];
 
+        return view('expenses.create', compact('allocation', 'remaining', 'categories'));
+    }
     public function store(Request $request)
     {
         // normalize amount input
@@ -36,6 +44,7 @@ class ExpenseController extends Controller
 
         $validated = $request->validate([
             'allocation_id' => ['required', 'exists:allocations,id'],
+            'category' => ['required', 'string', 'max:100'],
             'amount' => ['required', 'numeric', 'min:1'],
             'description' => ['required'],
             'date' => ['required', 'date'],
@@ -48,7 +57,6 @@ class ExpenseController extends Controller
 
         // check remaining budget
         $allocation = Allocation::findOrFail($validated['allocation_id']);
-
         $spent = $allocation->expenses()->sum('amount');
         $remaining = $allocation->amount - $spent;
 
@@ -60,13 +68,9 @@ class ExpenseController extends Controller
 
         // 🧾 handle receipt upload
         if ($request->hasFile('receipt')) {
-
             $file = $request->file('receipt');
-
             $filename = time() . '_' . $file->getClientOriginalName();
-
             $file->move(public_path('uploads/receipts'), $filename);
-
             $validated['receipt'] = 'uploads/receipts/' . $filename;
         }
 
