@@ -13,6 +13,7 @@ class Project extends Model
         'client_id',
         'project_name',
         'project_type_id',
+        'location',
         'start_date',
         'end_date',
         'contract_amount',

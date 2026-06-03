@@ -36,6 +36,7 @@ class ProjectController extends Controller
             'client_id' => 'required|exists:clients,id',
             'project_name' => 'required|string|max:255',
             'project_type_id' => 'required|exists:project_types,id',
+            'location' => 'nullable|string|max:100',
             'contract_number' => [
                 'required',
                 'string',
@@ -67,6 +68,7 @@ class ProjectController extends Controller
             'client_id' => 'required|exists:clients,id',
             'project_name' => 'required|string|max:255',
             'project_type_id' => 'required|exists:project_types,id',
+            'location' => 'nullable|string|max:100',
             'contract_number' => 'required|string|max:255',
             'contract_amount' => 'required|numeric|min:0',
             'start_date' => 'required|date',

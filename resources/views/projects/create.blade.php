@@ -213,7 +213,52 @@
                     </select>
 
                 </div>
-
+                <div class="form-group">
+                    <label>Location</label>
+                    <select name="location">
+                        <option value="" disabled selected>Select Region</option>
+                        @php
+                            $regions = [
+                                'Arusha',
+                                'Dar es Salaam',
+                                'Dodoma',
+                                'Geita',
+                                'Iringa',
+                                'Kagera',
+                                'Katavi',
+                                'Kigoma',
+                                'Kilimanjaro',
+                                'Lindi',
+                                'Manyara',
+                                'Mara',
+                                'Mbeya',
+                                'Morogoro',
+                                'Mtwara',
+                                'Mwanza',
+                                'Njombe',
+                                'Pemba North',
+                                'Pemba South',
+                                'Pwani',
+                                'Rukwa',
+                                'Ruvuma',
+                                'Shinyanga',
+                                'Simiyu',
+                                'Singida',
+                                'Songwe',
+                                'Tabora',
+                                'Tanga',
+                                'Unguja North',
+                                'Unguja South',
+                                'Zanzibar West',
+                            ];
+                        @endphp
+                        @foreach ($regions as $region)
+                            <option value="{{ $region }}" {{ old('location') == $region ? 'selected' : '' }}>
+                                {{ $region }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div class="form-group">
 

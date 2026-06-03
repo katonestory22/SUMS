@@ -185,6 +185,7 @@
                 <tr>
                     <th>Client</th>
                     <th>Project</th>
+                    <th>Location</th>
                     <th>Contract</th>
                     <th>Allocated</th>
                     <th>Spent</th>
@@ -197,7 +198,6 @@
             <tbody>
 
                 @forelse($projects as $project)
-
                     @php
                         $allocated = $project->allocations->sum('amount');
 
@@ -230,6 +230,9 @@
                         </td>
 
                         <td class="project-name">{{ $project->project_name }}</td>
+                        <td style="font-size:13px; color:#6b7280;">
+                            {{ $project->location ?? 'No location set' }}
+                        </td>
                         <td class="amount">TSh {{ number_format($project->contract_amount, 2) }}</td>
                         <td>TSh {{ number_format($allocated, 2) }}</td>
                         <td class="spent">TSh {{ number_format($spent, 2) }}</td>
@@ -254,7 +257,7 @@
 
                 @empty
                     <tr>
-                        <td colspan="8" class="empty-state">
+                        <td colspan="9" class="empty-state">
                             No projects registered yet
                         </td>
                     </tr>
