@@ -110,7 +110,7 @@ class ReportController extends Controller
             abort(404);
         }
 
-        return response()->file(storage_path('app/public/' . $report->file_path));
+        return Storage::disk('public')->download($report->file_path); // @phpstan-ignore-line
     }
     public function myReports()
     {
