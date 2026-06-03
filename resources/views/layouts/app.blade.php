@@ -76,7 +76,7 @@
         .main-card {
             background-color: #ffffff;
             width: 100%;
-            max-width: 1100px;
+            max-width: 1300px;
             padding: 50px;
             border-radius: 14px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
@@ -135,6 +135,10 @@
 
         .brand-link:hover {
             opacity: 0.85;
+        }
+
+        .main-card.projects-wide {
+            max-width: 1600px;
         }
     </style>
 </head>

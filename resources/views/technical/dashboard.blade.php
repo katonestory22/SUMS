@@ -5,6 +5,7 @@
 
 @section('sub-nav')
     <a href="{{ route('technical.dashboard') }}">Home</a>
+    <a href="{{ route('reports.create') }}">Upload Report</a>
 @endsection
 
 
@@ -84,7 +85,7 @@
         .project-card:hover {
             border-color: #2563eb;
             transform: translateY(-2px);
-             box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
         }
 
         .project-name {
@@ -175,7 +176,7 @@
     {{-- PROJECTS --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <div class="projects-card"  style="background:#fff;">
+    <div class="projects-card" style="background:#fff;">
 
         <div class="projects-header">
             <div class="projects-title">Projects</div>

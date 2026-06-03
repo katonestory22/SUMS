@@ -13,7 +13,8 @@ use App\Http\Controllers\{
     PhaseController,
     ProfileController,
     ProjectController,
-    TechnicalController
+    TechnicalController,
+    ReportController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -133,7 +134,35 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
+
+
+    // Finance & Technical — upload
+    Route::get('/reports/create', [ReportController::class, 'create'])
+        ->name('reports.create')
+        ->middleware('role:finance,technical,admin');
+
+    Route::post('/reports', [ReportController::class, 'store'])
+        ->name('reports.store')
+        ->middleware('role:finance,technical,admin');
+
+    Route::post('/reports/generate', [ReportController::class, 'generate'])
+        ->name('reports.generate')
+        ->middleware('role:finance,technical,admin');
+
+    // Director — view all
+    Route::get('/reports', [ReportController::class, 'index'])
+        ->name('reports.index')
+        ->middleware('role:director,admin');
+
+    // Download & preview — shared
+    Route::get('/reports/{report}/download', [ReportController::class, 'download'])
+        ->name('reports.download');
+
+    Route::get('/reports/{report}/preview', [ReportController::class, 'preview'])
+        ->name('reports.preview');
+
     Route::resource('users', UserController::class);
 });
+
 
 require __DIR__ . '/auth.php';
