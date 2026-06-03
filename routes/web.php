@@ -156,10 +156,13 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
     // Download & preview — shared
     Route::get('/reports/{report}/download', [ReportController::class, 'download'])
-        ->name('reports.download');
+        ->name('reports.download')->middleware('role:finance,technical,director,admin');
 
     Route::get('/reports/{report}/preview', [ReportController::class, 'preview'])
-        ->name('reports.preview');
+        ->name('reports.preview')->middleware('role:finance,technical,director,admin');
+    Route::get('/reports/my', [ReportController::class, 'myReports'])
+        ->name('reports.my')
+        ->middleware('role:finance,technical,admin');
 
     Route::resource('users', UserController::class);
 });

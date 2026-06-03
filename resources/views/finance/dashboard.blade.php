@@ -8,6 +8,7 @@
     <a href="{{ route('projects.index') }}">Projects</a>
     <a href="{{ route('allocations.index') }}">Allocations</a>
     <a href="{{ route('reports.create') }}">Upload Report</a>
+    <a href="{{ route('reports.my') }}">My Reports</a>
 @endsection
 
 

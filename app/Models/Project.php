@@ -97,23 +97,21 @@ class Project extends Model
 
     public function getProgressAttribute()
     {
-        $activities = $this->activities;
+        $phases = $this->phases()->with('activities')->get();
 
-        if ($activities->isEmpty()) {
+        if ($phases->isEmpty())
             return 0;
-        }
 
-        $totalWeight = $activities->sum('weight_percentage');
+        $totalPhaseWeight = $phases->sum('weight_percentage');
 
-        if ($totalWeight == 0) {
+        if ($totalPhaseWeight == 0)
             return 0;
-        }
 
-        $weightedSum = $activities->sum(function ($activity) {
-            return $activity->current_progress * $activity->weight_percentage;
+        $weighted = $phases->sum(function ($phase) {
+            return $phase->weight_percentage * $phase->progress();
         });
 
-        return round($weightedSum / $totalWeight, 2);
+        return round($weighted / $totalPhaseWeight, 2);
     }
 
     /*

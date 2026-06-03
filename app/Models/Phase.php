@@ -25,6 +25,20 @@ class Phase extends Model
 
     public function progress()
     {
-        return $this->activities()->avg('current_progress') ?? 0;
+        $activities = $this->activities;
+
+        if ($activities->isEmpty())
+            return 0;
+
+        $totalWeight = $activities->sum('weight_percentage');
+
+        if ($totalWeight == 0)
+            return 0;
+
+        $weighted = $activities->sum(function ($activity) {
+            return ($activity->weight_percentage * $activity->current_progress);
+        });
+
+        return round($weighted / $totalWeight, 2);
     }
 }

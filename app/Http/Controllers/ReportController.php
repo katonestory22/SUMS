@@ -112,4 +112,13 @@ class ReportController extends Controller
 
         return response()->file(storage_path('app/public/' . $report->file_path));
     }
+    public function myReports()
+    {
+        $reports = Report::with('project', 'uploader')
+            ->where('uploaded_by', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('reports.my', compact('reports'));
+    }
 }
