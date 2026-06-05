@@ -101,7 +101,7 @@ class ReportController extends Controller
             abort(404);
         }
 
-       return Storage::disk('public')->download($report->file_path); // @phpstan-ignore-line
+        return Storage::disk('public')->download($report->file_path); // @phpstan-ignore-line
     }
 
     public function preview(Report $report)
@@ -110,7 +110,13 @@ class ReportController extends Controller
             abort(404);
         }
 
-        return Storage::disk('public')->download($report->file_path); // @phpstan-ignore-line
+        $fullPath = storage_path('app/public/' . $report->file_path);
+        $mimeType = mime_content_type($fullPath);
+
+        return response()->file($fullPath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . basename($report->file_path) . '"',
+        ]);
     }
     public function myReports()
     {

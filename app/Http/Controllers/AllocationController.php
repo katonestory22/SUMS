@@ -34,8 +34,6 @@ class AllocationController extends Controller
         ]);
         $validated = $request->validate([
             'project_id' => ['required', 'exists:projects,id'],
-            'category' => ['required',
-            'in:Labour,Equipment,Travel,Operations,Consulting,Miscellaneous'],
             'amount' => ['required', 'numeric', 'min:1'],
             'allocation_date' => ['required', 'date'],
             'notes' => ['nullable'],
@@ -52,7 +50,7 @@ class AllocationController extends Controller
         if ($validated['amount'] > $remainingContract) {
             return back()
                 ->withErrors([
-                    'amount' => 'Allocation exceeds remaining contract balance of '.number_format($remainingContract, 2),
+                    'amount' => 'Allocation exceeds remaining contract balance of ' . number_format($remainingContract, 2),
                 ])
                 ->withInput();
         }
