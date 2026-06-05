@@ -577,18 +577,45 @@
                         </div>
 
                         @if ($expense->receipt)
-                            @php $receiptFile = basename($expense->receipt); @endphp
+                            @php
+                                $receiptFile = basename($expense->receipt);
+                                $receiptExt = strtolower(pathinfo($receiptFile, PATHINFO_EXTENSION));
+                                $receiptUrl = asset('storage/receipts/' . $receiptFile);
+                                $downloadUrl = route('file.download', ['type' => 'receipts', 'file' => $receiptFile]);
+                            @endphp
+
                             <div class="receipt-block">
-                                <img class="receipt-thumb" src="{{ asset('storage/receipts/' . $receiptFile) }}"
-                                    onerror="this.style.display='none'" onclick="openLightbox(this.src)"
-                                    title="Click to enlarge" />
-                                <div class="receipt-info">
-                                    <div class="receipt-label">Receipt</div>
-                                    <a class="receipt-download"
-                                        href="{{ route('file.download', ['type' => 'receipts', 'file' => $receiptFile]) }}">
-                                        ↓ Download
-                                    </a>
-                                </div>
+
+                                {{-- IMAGE receipt --}}
+                                @if (in_array($receiptExt, ['jpg', 'jpeg', 'png']))
+                                    <img class="receipt-thumb" src="{{ $receiptUrl }}"
+                                        onerror="this.style.display='none'" onclick="openLightbox('{{ $receiptUrl }}')"
+                                        title="Click to enlarge" />
+                                    <div class="receipt-info">
+                                        <div class="receipt-label">Receipt</div>
+                                        <a class="receipt-download" href="{{ $downloadUrl }}">↓ Download</a>
+                                    </div>
+
+                                    {{-- PDF receipt --}}
+                                @elseif ($receiptExt === 'pdf')
+                                    <div
+                                        style="width:52px; height:52px; border-radius:7px; background:#fef2f2;
+                        border:1px solid #fecaca; display:flex; align-items:center;
+                        justify-content:center; font-size:20px; flex-shrink:0;">
+                                        📄
+                                    </div>
+                                    <div class="receipt-info">
+                                        <div class="receipt-label">PDF Receipt</div>
+                                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                            <a class="receipt-download" href="{{ $receiptUrl }}" target="_blank"
+                                                style="background:#fef2f2; color:#dc2626;">
+                                                👁 Preview
+                                            </a>
+                                            <a class="receipt-download" href="{{ $downloadUrl }}">↓ Download</a>
+                                        </div>
+                                    </div>
+                                @endif
+
                             </div>
                         @else
                             <div class="no-receipt">No receipt uploaded</div>
