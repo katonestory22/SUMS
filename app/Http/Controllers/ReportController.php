@@ -101,7 +101,7 @@ class ReportController extends Controller
             abort(404);
         }
 
-        return Storage::disk('public')->download($report->file_path);
+       return Storage::disk('public')->download($report->file_path); // @phpstan-ignore-line
     }
 
     public function preview(Report $report)

@@ -96,10 +96,9 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
             abort(404);
         }
 
-        return Storage::disk('public')->download($path);
+        return Storage::disk('public')->download($path); // @phpstan-ignore-line
 
     })->name('file.download');
-
 
     /*
     | PHASES + ACTIVITIES

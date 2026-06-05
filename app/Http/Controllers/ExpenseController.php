@@ -68,12 +68,9 @@ class ExpenseController extends Controller
 
         // 🧾 handle receipt upload
         if ($request->hasFile('receipt')) {
-            $file = $request->file('receipt');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/receipts'), $filename);
-            $validated['receipt'] = 'uploads/receipts/' . $filename;
+            $path = $request->file('receipt')->store('receipts', 'public');
+            $validated['receipt'] = $path;
         }
-
         Expense::create($validated);
 
         return redirect()
