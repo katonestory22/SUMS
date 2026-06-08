@@ -6,7 +6,7 @@
 @section('sub-nav')
     <a href="{{ route('clients.index') }}">Clients</a>
     <a href="{{ route('projects.index') }}">Projects</a>
-    <a href="{{ route('allocations.index') }}">Allocations</a>
+    <a href="{{ route('allocations.index') }}">Income</a>
     <a href="{{ route('reports.create') }}">Upload Report</a>
     <a href="{{ route('reports.my') }}">My Reports</a>
 @endsection
@@ -160,7 +160,7 @@
         </div>
 
         <div class="summary-card">
-            <div class="summary-title">Total Allocated Funds</div>
+            <div class="summary-title">Total Income Funds</div>
             <div class="summary-money">
                 TSh {{ number_format($totalAllocated, 2) }}
             </div>

@@ -4,16 +4,27 @@
 @section('page-title', '')
 
 @section('sub-nav')
-    <a href="{{ route('dashboard') }}">Dashboard</a>
-    <a href="{{ route('reports.create') }}">Upload Report</a>
-    <a href="{{ route('reports.my') }}">My Reports</a>
+    <a href="{{ route('dashboard') }}">Back to Dashboard</a>
 @endsection
 
 @section('content')
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
             background: #f4f6f9;
+            margin: 0;
+        }
+
+        .card {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 35px 40px;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
         }
 
         .page-header {
@@ -23,53 +34,93 @@
             margin-bottom: 25px;
         }
 
-        .page-title {
+        .page-header h3 {
             font-size: 22px;
-            font-weight: 700;
+            font-weight: 600;
+            margin: 0;
+            color: #222;
+        }
+
+        .page-header p {
+            font-size: 14px;
+            color: #666;
+            margin: 4px 0 0 0;
+        }
+
+        .new-btn {
+            background-color: #2c5282;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .new-btn:hover {
+            background-color: #1f3d5a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background-color: #2c5282;
+            color: #fff;
+        }
+
+        th,
+        td {
+            padding: 12px 14px;
+            text-align: left;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .project-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .report-title {
+            font-weight: 600;
             color: #111827;
         }
 
-        .page-subtitle {
-            font-size: 13px;
+        .ext-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
             color: #6b7280;
-            margin-top: 2px;
-        }
-
-        .reports-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        .reports-table thead {
-            background: #1f3a5f;
-            color: white;
-        }
-
-        .reports-table th {
-            padding: 12px 14px;
-            text-align: left;
-            font-size: 12px;
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-        }
-
-        .reports-table td {
-            padding: 13px 14px;
-            border-bottom: 1px solid #f0f0f0;
-            vertical-align: middle;
-        }
-
-        .reports-table tbody tr:hover {
-            background: #f9fafb;
+            margin-top: 4px;
         }
 
         .badge {
             display: inline-block;
-            padding: 3px 10px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
         }
 
@@ -83,25 +134,33 @@
             color: #15803d;
         }
 
+        .badge-generated {
+            background: #2c5282;
+            color: #fff;
+        }
+
         .badge-manual {
             background: #f9fafb;
             color: #6b7280;
             border: 1px solid #e5e7eb;
         }
 
-        .badge-generated {
-            background: #111827;
-            color: white;
+        .date-cell {
+            color: #6b7280;
+            font-size: 13px;
         }
 
         .action-btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             padding: 5px 12px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             text-decoration: none;
             margin-right: 6px;
+            transition: background 0.2s ease;
         }
 
         .btn-preview {
@@ -109,52 +168,58 @@
             color: #1d4ed8;
         }
 
-        .btn-download {
-            background: #2563eb;
-            color: white;
-        }
-
         .btn-preview:hover {
             background: #dbeafe;
         }
 
+        .btn-download {
+            background: #2c5282;
+            color: #fff;
+        }
+
         .btn-download:hover {
-            background: #1d4ed8;
+            background: #1f3d5a;
         }
 
         .empty-state {
             text-align: center;
-            padding: 50px;
+            padding: 45px;
             color: #9ca3af;
             font-size: 14px;
         }
 
+        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.55);
             z-index: 9999;
             justify-content: center;
             align-items: center;
         }
 
+        .modal-overlay.open {
+            display: flex;
+        }
+
         .modal-box {
-            background: white;
-            width: 90%;
+            background: #fff;
+            width: 92%;
             max-width: 900px;
             height: 85vh;
             border-radius: 12px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 20px;
+            padding: 14px 20px;
             border-bottom: 1px solid #e5e7eb;
         }
 
@@ -167,13 +232,17 @@
         .modal-close {
             background: none;
             border: none;
-            font-size: 20px;
             cursor: pointer;
             color: #6b7280;
+            font-size: 20px;
             line-height: 1;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
         }
 
         .modal-close:hover {
+            background: #f3f4f6;
             color: #111827;
         }
 
@@ -198,95 +267,153 @@
             color: #6b7280;
             font-size: 14px;
         }
+
+        @media (max-width: 900px) {
+            .card {
+                padding: 25px;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            thead tr {
+                display: none;
+            }
+
+            tbody tr {
+                margin-bottom: 15px;
+            }
+
+            td {
+                padding-left: 50%;
+                position: relative;
+            }
+
+            td::before {
+                position: absolute;
+                left: 14px;
+                width: 45%;
+                white-space: nowrap;
+                font-weight: 600;
+            }
+
+            td:nth-of-type(1)::before {
+                content: "Project / Title";
+            }
+
+            td:nth-of-type(2)::before {
+                content: "Type";
+            }
+
+            td:nth-of-type(3)::before {
+                content: "Source";
+            }
+
+            td:nth-of-type(4)::before {
+                content: "Date";
+            }
+
+            td:nth-of-type(5)::before {
+                content: "Actions";
+            }
+        }
     </style>
 
-    <div class="page-header">
-        <div>
-            <div class="page-title">My Reports</div>
-            <div class="page-subtitle">Reports you have uploaded or generated</div>
+    <div class="card">
+
+        <div class="page-header">
+            <div>
+                <h3>My Reports</h3>
+                <p>Reports you have uploaded or generated</p>
+            </div>
+            <a href="{{ route('reports.create') }}" class="new-btn">+ New Report</a>
         </div>
-        <a href="{{ route('reports.create') }}"
-            style="background:#2563eb; color:white; padding:10px 18px; border-radius:8px;
-              text-decoration:none; font-weight:600; font-size:14px;">
-            + New Report
-        </a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Project / Title</th>
+                    <th>Type</th>
+                    <th>Source</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($reports as $report)
+                    @php
+                        $ext = $report->file_path ? strtolower(pathinfo($report->file_path, PATHINFO_EXTENSION)) : null;
+                        $extLabel = $ext ? strtoupper($ext) : null;
+                        $typeClass = $report->type === 'Financial Report' ? 'badge-financial' : 'badge-progress';
+                        $sourceClass = $report->source === 'generated' ? 'badge-generated' : 'badge-manual';
+                    @endphp
+                    <tr>
+                        <td>
+                            <div class="project-label">{{ $report->project->project_name }}</div>
+                            <div class="report-title">{{ $report->title }}</div>
+                            @if ($extLabel)
+                                <span class="ext-pill">{{ $extLabel }}</span>
+                            @endif
+                        </td>
+
+                        <td>
+                            <span class="badge {{ $typeClass }}">{{ $report->type }}</span>
+                        </td>
+
+                        <td>
+                            <span class="badge {{ $sourceClass }}">{{ ucfirst($report->source) }}</span>
+                        </td>
+
+                        <td class="date-cell">
+                            {{ $report->created_at->format('d M Y') }}
+                        </td>
+
+                        <td>
+                            @if ($report->file_path)
+                                <a href="#" class="action-btn btn-preview"
+                                    onclick="openPreview(
+                                       '{{ route('reports.preview', $report) }}',
+                                       '{{ addslashes($report->title) }}',
+                                       '{{ $ext }}'
+                                   )">
+                                    &#128065; Preview
+                                </a>
+                                <a href="{{ route('reports.download', $report) }}" class="action-btn btn-download">
+                                    &#8659; Download
+                                </a>
+                            @else
+                                <span style="font-size:12px; color:#9ca3af;">No file</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            No reports uploaded or generated yet
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        @if (method_exists($reports, 'links'))
+            <div style="margin-top: 20px;">{{ $reports->links() }}</div>
+        @endif
+
     </div>
 
-    <table class="reports-table">
-        <thead>
-            <tr>
-                <th>Project</th>
-                <th>Title</th>
-                <th>Type</th>
-                <th>Source</th>
-                <th>Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($reports as $report)
-                @php
-                    $ext = $report->file_path ? pathinfo($report->file_path, PATHINFO_EXTENSION) : null;
-                @endphp
-                <tr>
-                    <td>{{ $report->project->project_name }}</td>
-
-                    <td style="font-weight:600; color:#111827;">
-                        {{ $report->title }}
-                    </td>
-
-                    <td>
-                        <span
-                            class="badge {{ $report->type === 'Financial Report' ? 'badge-financial' : 'badge-progress' }}">
-                            {{ $report->type }}
-                        </span>
-                    </td>
-
-                    <td>
-                        <span class="badge {{ $report->source === 'generated' ? 'badge-generated' : 'badge-manual' }}">
-                            {{ ucfirst($report->source) }}
-                        </span>
-                    </td>
-
-                    <td style="color:#6b7280;">
-                        {{ $report->created_at->format('d M Y') }}
-                    </td>
-
-                    <td>
-                        @if ($report->file_path)
-                            <a href="#" class="action-btn btn-preview"
-                                onclick="openPreview(
-                               '{{ route('reports.preview', $report) }}',
-                               '{{ addslashes($report->title) }}',
-                               '{{ $ext }}'
-                           )">
-                                👁 Preview
-                            </a>
-
-                            <a href="{{ route('reports.download', $report) }}" class="action-btn btn-download">
-                                ⬇ Download
-                            </a>
-                        @else
-                            <span style="font-size:12px; color:#9ca3af;">No file</span>
-                        @endif
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="empty-state">
-                        You have not uploaded or generated any reports yet
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    <!-- PREVIEW MODAL -->
+    {{-- PREVIEW MODAL --}}
     <div class="modal-overlay" id="previewModal">
         <div class="modal-box">
             <div class="modal-header">
                 <div class="modal-title" id="modalTitle"></div>
-                <button class="modal-close" onclick="closePreview()">✕</button>
+                <button class="modal-close" onclick="closePreview()" aria-label="Close preview">&#x2715;</button>
             </div>
             <div class="modal-body" id="modalBody"></div>
         </div>
@@ -301,20 +428,18 @@
                 body.innerHTML = `<iframe src="${url}"></iframe>`;
             } else {
                 body.innerHTML = `
-                <div class="excel-notice">
-                    <div style="font-size:40px;">📊</div>
-                    <div>Excel files cannot be previewed inline.</div>
-                    <a href="${url}" style="color:#2563eb; font-weight:600;">
-                        Download to view
-                    </a>
-                </div>`;
+                    <div class="excel-notice">
+                        <div style="font-size:42px;">📊</div>
+                        <div>Excel files cannot be previewed inline.</div>
+                        <a href="${url}" style="color:#2c5282; font-weight:600;">Download to view</a>
+                    </div>`;
             }
 
-            document.getElementById('previewModal').style.display = 'flex';
+            document.getElementById('previewModal').classList.add('open');
         }
 
         function closePreview() {
-            document.getElementById('previewModal').style.display = 'none';
+            document.getElementById('previewModal').classList.remove('open');
             document.getElementById('modalBody').innerHTML = '';
         }
 

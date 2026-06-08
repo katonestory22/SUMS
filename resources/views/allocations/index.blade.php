@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Project Allocations')
+@section('title', 'Project Income')
 @section('page-title', '')
 
 @section('sub-nav')
@@ -196,11 +196,11 @@
 
         <div class="page-header">
             <div>
-                <h3>Allocations</h3>
+                <h3>Income</h3>
                 <p>Budget allocations for projects</p>
             </div>
 
-            <a href="{{ route('allocations.create') }}" class="new-btn">+ New Allocation</a>
+            <a href="{{ route('allocations.create') }}" class="new-btn">+ New Income Received</a>
         </div>
 
         <table>
@@ -209,7 +209,7 @@
                     <th>Client</th>
                     <th>Project</th>
                     <th>Category</th>
-                    <th>Allocated</th>
+                    <th>Income Received</th>
                     <th>Spent</th>
                     <th>Remaining</th>
                     <th>Status</th>
