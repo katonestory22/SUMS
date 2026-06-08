@@ -65,8 +65,17 @@ class ReportController extends Controller
         ])->findOrFail($request->project_id);
 
         $type = $request->type;
+        $pdf = Pdf::setOptions([
+            'isRemoteEnabled' => false,
+            'isPhpEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'enable_php' => true,
+            'isHtml5ParserEnabled' => true,
+            'chroot' => public_path(),
+        ])->loadView('reports.generated', compact('project', 'type'));
 
-        $pdf = Pdf::loadView('reports.generated', compact('project', 'type'));
+
 
         $filename = time() . '_' . str_replace(' ', '_', $type) . '_' . $project->id . '.pdf';
         $path = 'reports/' . $filename;
