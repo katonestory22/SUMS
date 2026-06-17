@@ -191,6 +191,16 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         ->get('/company-expenses/audit', [CompanyExpenseController::class, 'audit'])
         ->name('company-expenses.audit');
 
+    // Expense edit
+    Route::get('expenses/{expense}/edit', [ExpenseController::class, 'edit'])
+        ->name('expenses.edit');
+    Route::put('expenses/{expense}', [ExpenseController::class, 'update'])
+        ->name('expenses.update');
+
+    // Unified audit log
+    Route::get('/audit', [DirectorController::class, 'audit'])
+        ->name('director.audit')
+        ->middleware('role:director,admin');
 });
 
 

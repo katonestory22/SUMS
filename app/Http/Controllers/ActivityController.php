@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\Phase;
+use App\Models\ActivityEdit;
 use Illuminate\Http\Request;
 
 class ActivityController extends Controller
@@ -154,26 +155,41 @@ class ActivityController extends Controller
             'name' => 'required|string|max:255',
             'weight_percentage' => 'required|numeric|min:1|max:100',
             'current_progress' => 'required|numeric|min:0|max:100',
+            'reason' => 'nullable|string|max:500',
         ]);
 
-        // Recalculate weight excluding current activity
         $totalWeight = Activity::where('phase_id', $validated['phase_id'])
             ->where('id', '!=', $activity->id)
             ->sum('weight_percentage');
 
         if (($totalWeight + $validated['weight_percentage']) > 100) {
             return back()->withErrors([
-                'weight_percentage' => 'Total activity weight exceeds 100% for this phase.',
+                'weight_percentage' => 'Total activity weight exceeds 100%.',
             ])->withInput();
         }
 
+        $trackable = ['name', 'weight_percentage', 'current_progress'];
+        foreach ($trackable as $field) {
+            $old = (string) ($activity->$field ?? '');
+            $new = (string) ($validated[$field] ?? '');
+            if ($old !== $new) {
+                ActivityEdit::create([
+                    'activity_id' => $activity->id,
+                    'edited_by' => auth()->id(),
+                    'field_changed' => $field,
+                    'old_value' => $old,
+                    'new_value' => $new,
+                    'reason' => $validated['reason'] ?? null,
+                ]);
+            }
+        }
+
+        unset($validated['reason']);
         $activity->update($validated);
 
-        return redirect()
-            ->route('activities.index')
+        return redirect()->route('activities.index')
             ->with('success', 'Activity updated successfully.');
     }
-
     /**
      * Delete activity safely.
      */

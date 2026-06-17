@@ -4,13 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Phase;
 use App\Models\Project;
+use App\Models\PhaseEdit;
 use Illuminate\Http\Request;
 
 class PhaseController extends Controller
 {
-    /**
-     * List phases with project info.
-     */
     public function index()
     {
         $phases = Phase::with('project')
@@ -21,17 +19,13 @@ class PhaseController extends Controller
         return view('phases.index', compact('phases'));
     }
 
-    /**
-     * Show create form.
-     */
+
     public function create(Project $project)
     {
         return view('phases.create', compact('project'));
     }
 
-    /**
-     * Store new phase with weight validation.
-     */
+
     public function store(Request $request, $projectId)
     {
         $validated = $request->validate([
@@ -60,9 +54,7 @@ class PhaseController extends Controller
             ->with('success', 'Phase added successfully.');
     }
 
-    /**
-     * Show phase with activities.
-     */
+
     public function show(Phase $phase)
     {
         $phase->load('project', 'activities');
@@ -70,9 +62,7 @@ class PhaseController extends Controller
         return view('phases.show', compact('phase'));
     }
 
-    /**
-     * Edit phase.
-     */
+
     public function edit(Phase $phase)
     {
         $projects = Project::orderBy('project_name')->get();
@@ -80,9 +70,7 @@ class PhaseController extends Controller
         return view('phases.edit', compact('phase', 'projects'));
     }
 
-    /**
-     * Update phase with weight recalculation.
-     */
+
     public function update(Request $request, Phase $phase)
     {
         $validated = $request->validate([
@@ -90,6 +78,7 @@ class PhaseController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'weight_percentage' => 'required|numeric|min:1|max:100',
+            'reason' => 'nullable|string|max:500',
         ]);
 
         $totalWeight = Phase::where('project_id', $validated['project_id'])
@@ -98,20 +87,34 @@ class PhaseController extends Controller
 
         if (($totalWeight + $validated['weight_percentage']) > 100) {
             return back()->withErrors([
-                'weight_percentage' => 'Total phase weight exceeds 100% for this project.',
+                'weight_percentage' => 'Total phase weight exceeds 100%.',
             ])->withInput();
         }
 
+        $trackable = ['name', 'description', 'weight_percentage'];
+        foreach ($trackable as $field) {
+            $old = (string) ($phase->$field ?? '');
+            $new = (string) ($validated[$field] ?? '');
+            if ($old !== $new) {
+                PhaseEdit::create([
+                    'phase_id' => $phase->id,
+                    'edited_by' => auth()->id(),
+                    'field_changed' => $field,
+                    'old_value' => $old,
+                    'new_value' => $new,
+                    'reason' => $validated['reason'] ?? null,
+                ]);
+            }
+        }
+
+        unset($validated['reason']);
         $phase->update($validated);
 
-        return redirect()
-            ->route('phases.index')
+        return redirect()->route('phases.index')
             ->with('success', 'Phase updated successfully.');
     }
 
-    /**
-     * Delete phase only if no activities exist.
-     */
+
     public function destroy(Phase $phase)
     {
         if ($phase->activities()->exists()) {

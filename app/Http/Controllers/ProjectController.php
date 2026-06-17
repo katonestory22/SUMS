@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Expense;
 use App\Models\ProjectType;
+use App\Models\ProjectEdit;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,9 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::with(['client', 'type', 'allocations.expenses'])->get();
+
+        $projects = Project::with(['client', 'type', 'allocations.expenses'])
+            ->paginate(10);
 
         return view('projects.index', compact('projects'));
     }
@@ -64,6 +67,10 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
+        $request->merge([
+            'contract_amount' => str_replace(',', '', $request->contract_amount),
+        ]);
+
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
             'project_name' => 'required|string|max:255',
@@ -73,8 +80,36 @@ class ProjectController extends Controller
             'contract_amount' => 'required|numeric|min:0',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'reason' => 'required|string|max:500',
         ]);
 
+        $trackable = [
+            'client_id',
+            'project_name',
+            'project_type_id',
+            'location',
+            'contract_number',
+            'contract_amount',
+            'start_date',
+            'end_date'
+        ];
+
+        foreach ($trackable as $field) {
+            $old = (string) ($project->$field ?? '');
+            $new = (string) ($validated[$field] ?? '');
+            if ($old !== $new) {
+                ProjectEdit::create([
+                    'project_id' => $project->id,
+                    'edited_by' => auth()->id(),
+                    'field_changed' => $field,
+                    'old_value' => $old,
+                    'new_value' => $new,
+                    'reason' => $validated['reason'],
+                ]);
+            }
+        }
+
+        unset($validated['reason']);
         $project->update($validated);
 
         return redirect()->route('projects.index')

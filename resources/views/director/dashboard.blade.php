@@ -7,8 +7,7 @@
     <a href="{{ route('dashboard') }}">Home</a>
     <a href="{{ route('director.users') }}">Users</a>
     <a href="{{ route('reports.index') }}">View Reports</a>
-    <a href="{{ route('company-expenses.audit') }}">Expense Audit</a>
-
+    <a href="{{ route('director.audit') }}">Audit Log</a>
 @endsection
 
 @section('content')

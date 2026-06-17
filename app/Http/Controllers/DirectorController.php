@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\Expense;
+use App\Models\ProjectEdit;
+use App\Models\ExpenseEdit;
+use App\Models\PhaseEdit;
+use App\Models\ActivityEdit;
+use App\Models\CompanyExpenseEdit;
 
 
 class DirectorController extends Controller
@@ -84,5 +89,76 @@ class DirectorController extends Controller
 
         return view('director.users.index', compact('users'));
     }
+    public function audit()
+    {
+        $projectEdits = ProjectEdit::with('editor', 'project')
+            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
+                'audit_type' => 'Project',
+                'subject' => $e->project->project_name ?? '—',
+                'editor_name' => $e->editor->name ?? '—',
+                'audit_date' => $e->created_at,
+                'reason' => $e->reason,
+                'field' => $e->field_changed,
+                'old' => $e->old_value,
+                'new' => $e->new_value,
+            ]));
 
+        $expenseEdits = ExpenseEdit::with('editor', 'expense.allocation.project')
+            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
+                'audit_type' => 'Expense',
+                'subject' => $e->expense->description ?? '—',
+                'editor_name' => $e->editor->name ?? '—',
+                'audit_date' => $e->created_at,
+                'reason' => $e->reason,
+                'field' => $e->field_changed,
+                'old' => $e->old_value,
+                'new' => $e->new_value,
+            ]));
+
+        $phaseEdits = PhaseEdit::with('editor', 'phase.project')
+            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
+                'audit_type' => 'Phase',
+                'subject' => $e->phase->name ?? '—',
+                'editor_name' => $e->editor->name ?? '—',
+                'audit_date' => $e->created_at,
+                'reason' => $e->reason,
+                'field' => $e->field_changed,
+                'old' => $e->old_value,
+                'new' => $e->new_value,
+            ]));
+
+        $activityEdits = ActivityEdit::with('editor', 'activity.phase.project')
+            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
+                'audit_type' => 'Activity',
+                'subject' => $e->activity->name ?? '—',
+                'editor_name' => $e->editor->name ?? '—',
+                'audit_date' => $e->created_at,
+                'reason' => $e->reason,
+                'field' => $e->field_changed,
+                'old' => $e->old_value,
+                'new' => $e->new_value,
+            ]));
+
+        $companyEdits = CompanyExpenseEdit::with('editor', 'expense')
+            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
+                'audit_type' => 'Company Expense',
+                'subject' => $e->expense->title ?? '—',
+                'editor_name' => $e->editor->name ?? '—',
+                'audit_date' => $e->created_at,
+                'reason' => $e->reason,
+                'field' => $e->field_changed,
+                'old' => $e->old_value,
+                'new' => $e->new_value,
+            ]));
+
+        $allEdits = $projectEdits
+            ->concat($expenseEdits)
+            ->concat($phaseEdits)
+            ->concat($activityEdits)
+            ->concat($companyEdits)
+            ->sortByDesc('audit_date')
+            ->values();
+
+        return view('director.audit', compact('allEdits'));
+    }
 }
