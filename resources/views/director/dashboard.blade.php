@@ -7,6 +7,8 @@
     <a href="{{ route('dashboard') }}">Home</a>
     <a href="{{ route('director.users') }}">Users</a>
     <a href="{{ route('reports.index') }}">View Reports</a>
+    <a href="{{ route('company-expenses.audit') }}">Expense Audit</a>
+
 @endsection
 
 @section('content')
@@ -389,5 +391,59 @@
             });
 
         });
+    </script>
+
+    <div class="table-card" style="margin-top:24px;">
+        <h3 style="margin-bottom:6px;">Generate Company Expense Report</h3>
+        <p style="font-size:13px; color:#6b7280; margin-bottom:16px;">
+            Generate a PDF report for company operational expenses.
+        </p>
+        <form method="POST" action="{{ route('company-expenses.report') }}"
+            style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:12px; align-items:end;">
+            @csrf
+            <div>
+                <label style="font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">
+                    Type
+                </label>
+                <select name="report_type" id="dirReportType" onchange="toggleDirType()"
+                    style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:13px;">
+                    <option value="month">Specific Month</option>
+                    <option value="range">Date Range</option>
+                </select>
+            </div>
+            <div id="dirMonth">
+                <label
+                    style="font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Month</label>
+                <input type="month" name="month" value="{{ now()->format('Y-m') }}"
+                    style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:13px;">
+            </div>
+            <div id="dirFrom" style="display:none;">
+                <label
+                    style="font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">From</label>
+                <input type="date" name="date_from"
+                    style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:13px;">
+            </div>
+            <div id="dirTo" style="display:none;">
+                <label style="font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">To</label>
+                <input type="date" name="date_to"
+                    style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:13px;">
+            </div>
+            <div>
+                <button type="submit"
+                    style="background:#111827; color:white; border:none; padding:10px 18px;
+                           border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; width:100%;">
+                    ⚡ Generate
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function toggleDirType() {
+            const t = document.getElementById('dirReportType').value;
+            document.getElementById('dirMonth').style.display = t === 'month' ? 'block' : 'none';
+            document.getElementById('dirFrom').style.display = t === 'range' ? 'block' : 'none';
+            document.getElementById('dirTo').style.display = t === 'range' ? 'block' : 'none';
+        }
     </script>
 @endsection

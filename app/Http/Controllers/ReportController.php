@@ -132,7 +132,7 @@ class ReportController extends Controller
         $reports = Report::with('project', 'uploader')
             ->where('uploaded_by', auth()->id())
             ->latest()
-            ->get();
+            ->paginate(8);
 
         return view('reports.my', compact('reports'));
     }

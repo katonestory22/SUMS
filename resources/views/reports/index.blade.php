@@ -94,6 +94,11 @@
             color: white;
         }
 
+        .badge-company {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
         .action-btn {
             display: inline-block;
             padding: 5px 12px;
@@ -226,11 +231,15 @@
                     $ext = $report->file_path ? pathinfo($report->file_path, PATHINFO_EXTENSION) : null;
                 @endphp
                 <tr>
-                    <td>{{ $report->project->project_name }}</td>
+                    <td>{{ $report->project->project_name ?? 'Company' }}</td>
                     <td style="font-weight:600; color:#111827;">{{ $report->title }}</td>
                     <td>
                         <span
-                            class="badge {{ $report->type === 'Financial Report' ? 'badge-financial' : 'badge-progress' }}">
+                            class="badge {{ $report->type === 'Financial Report'
+                                ? 'badge-financial'
+                                : ($report->type === 'Progress Report'
+                                    ? 'badge-progress'
+                                    : 'badge-company') }}">
                             {{ $report->type }}
                         </span>
                     </td>

@@ -145,6 +145,11 @@
             border: 1px solid #e5e7eb;
         }
 
+        .badge-company {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
         .date-cell {
             color: #6b7280;
             font-size: 13px;
@@ -349,13 +354,24 @@
                 @forelse ($reports as $report)
                     @php
                         $ext = $report->file_path ? strtolower(pathinfo($report->file_path, PATHINFO_EXTENSION)) : null;
+
                         $extLabel = $ext ? strtoupper($ext) : null;
-                        $typeClass = $report->type === 'Financial Report' ? 'badge-financial' : 'badge-progress';
+
+                        $typeClass = match ($report->type) {
+                            'Financial Report' => 'badge-financial',
+                            'Progress Report' => 'badge-progress',
+                            'Company Expense Report' => 'badge-company',
+                            default => 'badge-manual',
+                        };
+
                         $sourceClass = $report->source === 'generated' ? 'badge-generated' : 'badge-manual';
                     @endphp
+
                     <tr>
                         <td>
-                            <div class="project-label">{{ $report->project->project_name }}</div>
+                            <div class="project-label">
+                                {{ $report->project->project_name ?? 'Company' }}
+                            </div>
                             <div class="report-title">{{ $report->title }}</div>
                             @if ($extLabel)
                                 <span class="ext-pill">{{ $extLabel }}</span>
@@ -378,10 +394,10 @@
                             @if ($report->file_path)
                                 <a href="#" class="action-btn btn-preview"
                                     onclick="openPreview(
-                                       '{{ route('reports.preview', $report) }}',
-                                       '{{ addslashes($report->title) }}',
-                                       '{{ $ext }}'
-                                   )">
+                                        '{{ route('reports.preview', $report) }}',
+                                        '{{ addslashes($report->title) }}',
+                                        '{{ $ext }}'
+                                    )">
                                     &#128065; Preview
                                 </a>
                                 <a href="{{ route('reports.download', $report) }}" class="action-btn btn-download">
@@ -392,6 +408,7 @@
                             @endif
                         </td>
                     </tr>
+
                 @empty
                     <tr>
                         <td colspan="5" class="empty-state">
@@ -402,9 +419,9 @@
             </tbody>
         </table>
 
-        @if (method_exists($reports, 'links'))
-            <div style="margin-top: 20px;">{{ $reports->links() }}</div>
-        @endif
+        <div style="margin-top: 20px;">
+            {{ $reports->links() }}
+        </div>
 
     </div>
 
@@ -413,7 +430,9 @@
         <div class="modal-box">
             <div class="modal-header">
                 <div class="modal-title" id="modalTitle"></div>
-                <button class="modal-close" onclick="closePreview()" aria-label="Close preview">&#x2715;</button>
+                <button class="modal-close" onclick="closePreview()" aria-label="Close preview">
+                    &#x2715;
+                </button>
             </div>
             <div class="modal-body" id="modalBody"></div>
         </div>

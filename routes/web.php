@@ -14,7 +14,8 @@ use App\Http\Controllers\{
     ProfileController,
     ProjectController,
     TechnicalController,
-    ReportController
+    ReportController,
+    CompanyExpenseController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -164,6 +165,32 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         ->middleware('role:finance,technical,admin');
 
     Route::resource('users', UserController::class);
+
+
+    // Finance — company expenses
+    Route::middleware('role:finance,admin')->group(function () {
+        Route::get('/company-expenses', [CompanyExpenseController::class, 'index'])
+            ->name('company-expenses.index');
+        Route::get('/company-expenses/create', [CompanyExpenseController::class, 'create'])
+            ->name('company-expenses.create');
+        Route::post('/company-expenses', [CompanyExpenseController::class, 'store'])
+            ->name('company-expenses.store');
+        Route::get('/company-expenses/{companyExpense}/edit', [CompanyExpenseController::class, 'edit'])
+            ->name('company-expenses.edit');
+        Route::put('/company-expenses/{companyExpense}', [CompanyExpenseController::class, 'update'])
+            ->name('company-expenses.update');
+    });
+
+    // Report generation — finance and director
+    Route::middleware('role:finance,director,admin')
+        ->post('/company-expenses/report', [CompanyExpenseController::class, 'generateReport'])
+        ->name('company-expenses.report');
+
+    // Director — audit log
+    Route::middleware('role:director,admin')
+        ->get('/company-expenses/audit', [CompanyExpenseController::class, 'audit'])
+        ->name('company-expenses.audit');
+
 });
 
 
