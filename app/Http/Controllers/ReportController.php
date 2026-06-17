@@ -99,7 +99,7 @@ class ReportController extends Controller
     {
         $reports = Report::with('project', 'uploader')
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('reports.index', compact('reports'));
     }
@@ -130,10 +130,10 @@ class ReportController extends Controller
     public function myReports()
     {
         $reports = Report::with('project', 'uploader')
-            ->where('uploaded_by', auth()->id())
             ->latest()
-            ->paginate(8);
+            ->paginate(10);
 
-        return view('reports.my', compact('reports'));
+        return view('reports.index', compact('reports'));
+
     }
 }

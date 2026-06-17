@@ -283,6 +283,10 @@
         </tbody>
     </table>
 
+    <div style="margin-top:20px;">
+        {{ $reports->links() }}
+    </div>
+
     <!-- PREVIEW MODAL -->
     <div class="modal-overlay" id="previewModal">
         <div class="modal-box">

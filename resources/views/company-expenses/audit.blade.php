@@ -1,13 +1,13 @@
 @extends('layouts.app')
-@section('title', 'Expense Audit Log')
+
+@section('title', 'Audit Log')
+
 @section('sub-nav')
     <a href="{{ route('dashboard') }}">Home</a>
-    <a href="{{ route('director.users') }}">Users</a>
-    <a href="{{ route('reports.index') }}">View Reports</a>
-    <a href="{{ route('company-expenses.audit') }}">Expense Audit</a>
 @endsection
 
 @section('content')
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -34,7 +34,7 @@
         .page-subtitle {
             font-size: 13px;
             color: #6b7280;
-            margin-top: 2px;
+            margin-top: 4px;
         }
 
         table {
@@ -53,11 +53,11 @@
             text-align: left;
             font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.4px;
+            letter-spacing: .4px;
         }
 
         td {
-            padding: 13px 14px;
+            padding: 14px;
             border-bottom: 1px solid #f0f0f0;
             vertical-align: top;
         }
@@ -66,33 +66,43 @@
             background: #f9fafb;
         }
 
-        .field-badge {
+        .type-badge {
             display: inline-block;
-            padding: 2px 8px;
-            border-radius: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: #dbeafe;
+            color: #1d4ed8;
             font-size: 11px;
             font-weight: 700;
+        }
+
+        .field-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
             background: #f3f4f6;
             color: #374151;
-            text-transform: capitalize;
+            font-size: 11px;
+            font-weight: 700;
         }
 
         .old-val {
             color: #dc2626;
             font-size: 12px;
-            text-decoration: line-through;
+            word-break: break-word;
         }
 
         .new-val {
             color: #16a34a;
             font-size: 12px;
             font-weight: 600;
+            word-break: break-word;
         }
 
         .reason-text {
-            font-size: 12px;
             color: #6b7280;
-            font-style: italic;
+            font-size: 12px;
+            max-width: 250px;
         }
 
         .editor-name {
@@ -101,15 +111,13 @@
         }
 
         .edit-date {
-            font-size: 11px;
-            color: #9ca3af;
+            font-size: 12px;
+            color: #6b7280;
         }
 
-        .expense-link {
-            color: #2563eb;
+        .subject {
             font-weight: 600;
-            text-decoration: none;
-            font-size: 12px;
+            color: #111827;
         }
 
         .empty-state {
@@ -117,59 +125,119 @@
             padding: 50px;
             color: #9ca3af;
         }
+
+        @media(max-width: 1000px) {
+            .page-card {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 1000px;
+            }
+        }
     </style>
 
     <div class="page-card">
+
         <div class="page-header">
-            <div class="page-title">Expense Audit Log</div>
-            <div class="page-subtitle">All changes made to company expenses by finance staff</div>
+            <div class="page-title">
+                System Audit Log
+            </div>
+
+            <div class="page-subtitle">
+                Complete history of changes made across projects, phases, activities and finances.
+            </div>
         </div>
 
         <table>
+
             <thead>
                 <tr>
-                    <th>Expense</th>
-                    <th>Field Changed</th>
+                    <th>Type</th>
+                    <th>Subject</th>
+                    <th>Field</th>
                     <th>Old Value</th>
                     <th>New Value</th>
                     <th>Reason</th>
                     <th>Edited By</th>
-                    <th>Date & Time</th>
+                    <th>Date</th>
                 </tr>
             </thead>
+
             <tbody>
-                @forelse ($edits as $edit)
+
+                @forelse($edits as $edit)
                     <tr>
+
                         <td>
-                            <div style="font-weight:600; color:#111827; font-size:13px;">
-                                {{ $edit->expense->title ?? '—' }}
+                            <span class="type-badge">
+                                {{ $edit['audit_type'] ?? 'Unknown' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="subject">
+                                {{ $edit['subject'] ?? '—' }}
                             </div>
-                            <div style="font-size:11px; color:#9ca3af;">
-                                {{ $edit->expense->category ?? '' }}
+                        </td>
+
+                        <td>
+                            <span class="field-badge">
+                                {{ $edit['field'] ?? '—' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="old-val">
+                                {{ $edit['old'] ?: '—' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="new-val">
+                                {{ $edit['new'] ?: '—' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="reason-text">
+                                {{ $edit['reason'] ?: 'No reason provided' }}
                             </div>
                         </td>
-                        <td><span class="field-badge">{{ $edit->field_changed }}</span></td>
-                        <td><span class="old-val">{{ $edit->old_value ?: '—' }}</span></td>
-                        <td><span class="new-val">{{ $edit->new_value ?: '—' }}</span></td>
-                        <td><span class="reason-text">{{ $edit->reason }}</span></td>
+
                         <td>
-                            <span class="editor-name">{{ $edit->editor->name ?? '—' }}</span>
+                            <span class="editor-name">
+                                {{ $edit['editor_name'] ?? '—' }}
+                            </span>
                         </td>
+
                         <td>
-                            <div class="edit-date">{{ $edit->created_at->format('d M Y') }}</div>
-                            <div class="edit-date">{{ $edit->created_at->format('H:i') }}</div>
+                            <div class="edit-date">
+                                {{ \Carbon\Carbon::parse($edit['audit_date'])->format('d M Y') }}
+                            </div>
+
+                            <div class="edit-date">
+                                {{ \Carbon\Carbon::parse($edit['audit_date'])->format('H:i') }}
+                            </div>
                         </td>
+
                     </tr>
+
                 @empty
+
                     <tr>
-                        <td colspan="7" class="empty-state">No edits recorded yet</td>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                No audit records found.
+                            </div>
+                        </td>
                     </tr>
                 @endforelse
+
             </tbody>
+
         </table>
 
-        <div style="margin-top:20px;">
-            {{ $edits->links() }}
-        </div>
     </div>
+
 @endsection

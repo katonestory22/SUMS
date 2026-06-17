@@ -223,6 +223,9 @@
             <div class="stat-label">All Time</div>
             <div class="stat-value">TSh {{ number_format($totalAll, 0) }}</div>
         </div>
+        <div class="page-subtitle">
+            Total Reports: {{ $reports->total() }}
+        </div>
     </div>
 
     {{-- TABLE --}}
@@ -286,7 +289,7 @@
         </table>
 
         <div style="margin-top:20px;">
-            {{ $expenses->links() }}
+            {{ $reports->links() }}
         </div>
     </div>
 

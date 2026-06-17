@@ -159,6 +159,8 @@ class DirectorController extends Controller
             ->sortByDesc('audit_date')
             ->values();
 
-        return view('director.audit', compact('allEdits'));
+        return view('company-expenses.audit', [
+            'edits' => $allEdits
+        ]);
     }
 }
