@@ -34,6 +34,13 @@
                 <span class="no-receipt">No receipt uploaded</span>
             @endif
         </div>
-
+        <div style="margin-top: 12px;">
+            <a href="{{ route('expenses.edit', $expense) }}"
+                style="display:inline-block; padding:6px 14px; border-radius:7px;
+              background:#eff6ff; color:#1d4ed8; font-size:12px;
+              font-weight:600; text-decoration:none; transition:background 0.2s;">
+                ✏️ Edit
+            </a>
+        </div>
     </div>
 @endforeach
