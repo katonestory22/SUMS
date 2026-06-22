@@ -37,7 +37,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .page-header h3 {
@@ -69,6 +69,90 @@
             background-color: #1f3d5a;
         }
 
+        /* ── FILTER BAR ── */
+        .filter-bar {
+            display: grid;
+            grid-template-columns: 1fr 160px 160px auto;
+            gap: 10px;
+            margin-bottom: 16px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 13px;
+            background: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 6px;
+            align-items: flex-end;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 7px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+
+        .btn-search {
+            background: #2c5282;
+            color: white;
+        }
+
+        .btn-search:hover {
+            background: #1f3d5a;
+        }
+
+        .btn-clear {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            text-decoration: none;
+            display: inline-block;
+            padding: 8px 14px;
+        }
+
+        .btn-clear:hover {
+            background: #e5e7eb;
+        }
+
+        .results-meta {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 14px;
+        }
+
+        /* ── TABLE ── */
         .projects-table {
             width: 100%;
             min-width: 1100px;
@@ -373,10 +457,6 @@
             color: #4b5563;
         }
 
-        .project-info-strip strong {
-            color: #111827;
-        }
-
         .audit-notice {
             background: #fffbeb;
             border: 1px solid #fcd34d;
@@ -432,10 +512,6 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
-        }
-
-        .form-row.single {
-            grid-template-columns: 1fr;
         }
 
         .form-group {
@@ -618,6 +694,57 @@
             <a href="{{ route('projects.create') }}" class="new-btn">+ New Project</a>
         </div>
 
+        {{-- FILTER BAR --}}
+        <form method="GET" action="{{ route('projects.index') }}">
+            <div class="filter-bar">
+
+                <div class="filter-group">
+                    <span class="filter-label">Search</span>
+                    <input type="text" name="search" class="filter-input" placeholder="Project name or contract number…"
+                        value="{{ request('search') }}">
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Location</span>
+                    <select name="location" class="filter-input">
+                        <option value="">All Regions</option>
+                        @foreach ($regions as $region)
+                            <option value="{{ $region }}" {{ request('location') == $region ? 'selected' : '' }}>
+                                {{ $region }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Project Type</span>
+                    <select name="type" class="filter-input">
+                        <option value="">All Types</option>
+                        @foreach ($projectTypes as $type)
+                            <option value="{{ $type->id }}" {{ request('type') == $type->id ? 'selected' : '' }}>
+                                {{ ucfirst($type->name) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="filter-btn btn-search">Filter</button>
+                    <a href="{{ route('projects.index') }}" class="filter-btn btn-clear">Clear</a>
+                </div>
+
+            </div>
+        </form>
+
+        {{-- Results meta --}}
+        <div class="results-meta">
+            Showing {{ $projects->firstItem() ?? 0 }}–{{ $projects->lastItem() ?? 0 }}
+            of {{ $projects->total() }} projects
+            @if (request('search') || request('location') || request('type'))
+                — <a href="{{ route('projects.index') }}" style="color:#2563eb;">clear filters</a>
+            @endif
+        </div>
+
         <div class="table-scroll">
             <table class="projects-table">
                 <thead>
@@ -725,9 +852,16 @@
                                 </div>
                             </td>
                         </tr>
+
                     @empty
                         <tr>
-                            <td colspan="8" class="empty-state">No projects registered yet</td>
+                            <td colspan="8" class="empty-state">
+                                @if (request('search') || request('location') || request('type'))
+                                    No projects match your filters
+                                @else
+                                    No projects registered yet
+                                @endif
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -766,8 +900,7 @@
                         {{-- Basic Info --}}
                         <div class="edit-section">
                             <div class="edit-section-header" onclick="toggleSection(this)">
-                                Basic Information
-                                <span>&#9660;</span>
+                                Basic Information <span>&#9660;</span>
                             </div>
                             <div class="edit-section-body">
                                 <div class="form-row">
@@ -779,41 +912,6 @@
                                         <label>Location</label>
                                         <select name="location" id="edit_location">
                                             <option value="">Not set</option>
-                                            @php
-                                                $regions = [
-                                                    'Arusha',
-                                                    'Dar es Salaam',
-                                                    'Dodoma',
-                                                    'Geita',
-                                                    'Iringa',
-                                                    'Kagera',
-                                                    'Katavi',
-                                                    'Kigoma',
-                                                    'Kilimanjaro',
-                                                    'Lindi',
-                                                    'Manyara',
-                                                    'Mara',
-                                                    'Mbeya',
-                                                    'Morogoro',
-                                                    'Mtwara',
-                                                    'Mwanza',
-                                                    'Njombe',
-                                                    'Pemba North',
-                                                    'Pemba South',
-                                                    'Pwani',
-                                                    'Rukwa',
-                                                    'Ruvuma',
-                                                    'Shinyanga',
-                                                    'Simiyu',
-                                                    'Singida',
-                                                    'Songwe',
-                                                    'Tabora',
-                                                    'Tanga',
-                                                    'Unguja North',
-                                                    'Unguja South',
-                                                    'Zanzibar West',
-                                                ];
-                                            @endphp
                                             @foreach ($regions as $region)
                                                 <option value="{{ $region }}">{{ $region }}</option>
                                             @endforeach
@@ -826,8 +924,7 @@
                         {{-- Client & Type --}}
                         <div class="edit-section">
                             <div class="edit-section-header" onclick="toggleSection(this)">
-                                Client & Project Type
-                                <span>&#9660;</span>
+                                Client & Project Type <span>&#9660;</span>
                             </div>
                             <div class="edit-section-body">
                                 <div class="form-row">
@@ -844,7 +941,7 @@
                                     <div class="form-group">
                                         <label>Project Type</label>
                                         <select name="project_type_id" id="edit_project_type_id">
-                                            @foreach ($projects->pluck('type')->filter()->unique('id') as $type)
+                                            @foreach ($projectTypes as $type)
                                                 <option value="{{ $type->id }}">{{ ucfirst($type->name) }}</option>
                                             @endforeach
                                         </select>
@@ -856,8 +953,7 @@
                         {{-- Contract --}}
                         <div class="edit-section">
                             <div class="edit-section-header" onclick="toggleSection(this)">
-                                Contract Details
-                                <span>&#9660;</span>
+                                Contract Details <span>&#9660;</span>
                             </div>
                             <div class="edit-section-body">
                                 <div class="form-row">
@@ -893,7 +989,6 @@
                         </div>
 
                     </div>
-
                 </form>
             </div>
 
@@ -923,7 +1018,6 @@
     </div>
 
     <script>
-        // ── SECTION TOGGLE ──
         function toggleSection(header) {
             const body = header.nextElementSibling;
             const icon = header.querySelector('span');
@@ -932,12 +1026,10 @@
             icon.innerHTML = isOpen ? '&#9660;' : '&#9650;';
         }
 
-        // ── EDIT MODAL ──
         function openEditModal(id, name, clientId, typeId, location,
             contractNumber, contractAmount, startDate, endDate) {
             document.getElementById('editModalTitle').innerText = 'Edit — ' + name;
-            document.getElementById('editProjectInfo').innerHTML =
-                '<strong>Project:</strong> ' + name;
+            document.getElementById('editProjectInfo').innerHTML = '<strong>Project:</strong> ' + name;
             document.getElementById('editProjectForm').action = '/projects/' + id;
 
             document.getElementById('edit_project_name').value = name;
@@ -957,13 +1049,11 @@
         }
 
         function submitEditForm() {
-            // Strip commas from amount before submit
             const amtField = document.getElementById('edit_contract_amount');
             amtField.value = amtField.value.replace(/,/g, '');
             document.getElementById('editProjectForm').submit();
         }
 
-        // ── DELETE MODAL ──
         function openDeleteModal(id, name) {
             document.getElementById('projectName').innerText = name;
             document.getElementById('deleteForm').action = '/projects/' + id;
@@ -974,13 +1064,11 @@
             document.getElementById('deleteModal').classList.remove('open');
         }
 
-        // Close on backdrop click
         window.addEventListener('click', function(e) {
             if (e.target === document.getElementById('editModal')) closeEditModal();
             if (e.target === document.getElementById('deleteModal')) closeDeleteModal();
         });
 
-        // Close on Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeEditModal();

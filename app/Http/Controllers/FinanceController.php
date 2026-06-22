@@ -22,8 +22,7 @@ class FinanceController extends Controller
         $totalContractValue = Project::sum('contract_amount');
         $totalAllocated = Allocation::sum('amount');
         $totalSpent = Expense::sum('amount');
-
-        $remainingBudget = $totalContractValue - $totalSpent;
+        $remainingBudget = $totalAllocated - $totalSpent; // ← fixed
 
         $categories = [
             'Labour',
@@ -33,23 +32,18 @@ class FinanceController extends Controller
             'Consulting',
             'Miscellaneous'
         ];
-        // CASHFLOW (simple snapshot)
+
         $cashflow = [
             'allocated' => $totalAllocated,
             'spent' => $totalSpent,
             'remaining' => $remainingBudget,
         ];
 
-        // EXPENSE BY CATEGORY (FIXED JOIN)
         $expenseByCategory = collect($categories)->map(function ($cat) {
             $total = DB::table('expenses')
                 ->where('category', $cat)
                 ->sum('amount');
-
-            return [
-                'category' => $cat,
-                'total' => $total
-            ];
+            return ['category' => $cat, 'total' => $total];
         });
 
         return view('finance.dashboard', compact(

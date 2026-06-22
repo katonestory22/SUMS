@@ -12,32 +12,69 @@ use App\Models\ExpenseEdit;
 use App\Models\PhaseEdit;
 use App\Models\ActivityEdit;
 use App\Models\CompanyExpenseEdit;
+use App\Models\CompanyExpense;
 
 
 class DirectorController extends Controller
 {
     public function index()
-    {
-        $projects = Project::with(['client', 'activities', 'allocations.expenses'])->get();
+    { /*
+   |--------------------------------------------------------------------------
+   | Load Projects With Relationships
+   |--------------------------------------------------------------------------
+   */
+        $projects = Project::with([
+            'client',
+            'activities',
+            'allocations.expenses'
+        ])->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard Summary Statistics
+        |--------------------------------------------------------------------------
+        */
+        $totalProjects = $projects->count();
 
         $totalContract = $projects->sum('contract_amount');
-        $totalAllocated = $projects->sum(fn($p) => $p->totalAllocated());
-        $totalSpent = $projects->sum(fn($p) => $p->totalExpenses());
-        // Chart data (ALL projects combined)
+
+        $totalAllocated = $projects->sum(function ($project) {
+            return $project->totalAllocated();
+        });
+
+        $totalSpent = $projects->sum(function ($project) {
+            return $project->totalExpenses();
+        });
+
+        $remainingBudget = $totalAllocated - $totalSpent;
+
+        $totalCompanyExpenses = CompanyExpense::sum('amount');
+
+        $overBudgetProjects = $projects->filter(function ($project) {
+            return $project->totalExpenses() >
+                $project->totalAllocated();
+        })->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Project Chart Data
+        |--------------------------------------------------------------------------
+        */
         $labels = $projects->pluck('project_name');
 
         $allocatedData = $projects->map(function ($project) {
-            return method_exists($project, 'totalAllocated')
-                ? $project->totalAllocated()
-                : 0;
+            return $project->totalAllocated();
         });
 
         $expenseData = $projects->map(function ($project) {
-            return method_exists($project, 'totalExpenses')
-                ? $project->totalExpenses()
-                : 0;
+            return $project->totalExpenses();
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Expense Categories
+        |--------------------------------------------------------------------------
+        */
         $categories = [
             'Labour',
             'Equipment',
@@ -47,39 +84,74 @@ class DirectorController extends Controller
             'Miscellaneous'
         ];
 
-        $raw = Expense::selectRaw('category, SUM(amount) as total')
+        $rawExpenses = Expense::selectRaw(
+            'category, SUM(amount) as total'
+        )
             ->whereNotNull('category')
             ->groupBy('category')
             ->pluck('total', 'category');
 
-        $expenseByCategory = collect($categories)->mapWithKeys(function ($cat) use ($raw) {
-            return [$cat => $raw[$cat] ?? 0];
-        });
+        $expenseByCategory = collect($categories)
+            ->mapWithKeys(function ($category) use ($rawExpenses) {
+                return [
+                    $category => $rawExpenses[$category] ?? 0
+                ];
+            });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Monthly Allocation Trend
+        |--------------------------------------------------------------------------
+        */
         $monthlyAllocations = DB::table('allocations')
-            ->selectRaw("DATE_FORMAT(allocation_date, '%Y-%m') as month, SUM(amount) as total")
+            ->selectRaw("
+            DATE_FORMAT(allocation_date, '%Y-%m') as month,
+            SUM(amount) as total
+        ")
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Monthly Expense Trend
+        |--------------------------------------------------------------------------
+        */
         $monthlyExpenses = DB::table('expenses')
-            ->join('allocations', 'expenses.allocation_id', '=', 'allocations.id')
-            ->selectRaw("DATE_FORMAT(expenses.date, '%Y-%m') as month, SUM(expenses.amount) as total")
+            ->join(
+                'allocations',
+                'expenses.allocation_id',
+                '=',
+                'allocations.id'
+            )
+            ->selectRaw("
+            DATE_FORMAT(expenses.date, '%Y-%m') as month,
+            SUM(expenses.amount) as total
+        ")
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Return Dashboard
+        |--------------------------------------------------------------------------
+        */
         return view('director.dashboard', compact(
             'projects',
+            'totalProjects',
             'totalContract',
             'totalAllocated',
             'totalSpent',
+            'remainingBudget',
+            'totalCompanyExpenses',
+            'overBudgetProjects',
             'labels',
             'allocatedData',
             'expenseData',
             'expenseByCategory',
-            'monthlyExpenses',
-            'monthlyAllocations'
+            'monthlyAllocations',
+            'monthlyExpenses'
         ));
     }
 

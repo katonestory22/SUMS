@@ -12,13 +12,64 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Project::with(['client', 'type', 'allocations.expenses']);
 
-        $projects = Project::with(['client', 'type', 'allocations.expenses'])
-            ->paginate(10);
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('project_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('contract_number', 'like', '%' . $request->search . '%');
+            });
+        }
 
-        return view('projects.index', compact('projects'));
+        if ($request->filled('location')) {
+            $query->where('location', $request->location);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('project_type_id', $request->type);
+        }
+
+        $projects = $query->paginate(10)->withQueryString();
+
+        $projectTypes = ProjectType::orderBy('name')->get();
+
+        $regions = [
+            'Arusha',
+            'Dar es Salaam',
+            'Dodoma',
+            'Geita',
+            'Iringa',
+            'Kagera',
+            'Katavi',
+            'Kigoma',
+            'Kilimanjaro',
+            'Lindi',
+            'Manyara',
+            'Mara',
+            'Mbeya',
+            'Morogoro',
+            'Mtwara',
+            'Mwanza',
+            'Njombe',
+            'Pemba North',
+            'Pemba South',
+            'Pwani',
+            'Rukwa',
+            'Ruvuma',
+            'Shinyanga',
+            'Simiyu',
+            'Singida',
+            'Songwe',
+            'Tabora',
+            'Tanga',
+            'Unguja North',
+            'Unguja South',
+            'Zanzibar West'
+        ];
+
+        return view('projects.index', compact('projects', 'projectTypes', 'regions'));
     }
 
     public function create()

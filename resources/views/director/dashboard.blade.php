@@ -6,7 +6,7 @@
 @section('sub-nav')
     <a href="{{ route('dashboard') }}">Home</a>
     <a href="{{ route('director.users') }}">Users</a>
-    <a href="{{ route('reports.index') }}">View Reports</a>
+    <a href="{{ route('reports.index') }}">Reports</a>
     <a href="{{ route('director.audit') }}">Audit Log</a>
 @endsection
 
@@ -24,43 +24,94 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
         }
 
         .summary-card {
             background: white;
-            padding: 25px;
+            padding: 22px 24px;
             border-radius: 12px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-            transition: transform .2s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .05);
+            border-left: 4px solid #e5e7eb;
+            transition: .2s;
         }
 
         .summary-card:hover {
             transform: translateY(-2px);
         }
 
+        .blue {
+            border-left-color: #2563eb;
+        }
+
+        .green {
+            border-left-color: #16a34a;
+        }
+
+        .red {
+            border-left-color: #dc2626;
+        }
+
+        .amber {
+            border-left-color: #f59e0b;
+        }
+
+        .navy {
+            border-left-color: #1f3a5f;
+        }
+
+        .purple {
+            border-left-color: #7c3aed;
+        }
+
         .summary-title {
-            font-size: 13px;
-            color: #6b7280;
+            font-size: 11px;
+            color: #9ca3af;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
             margin-bottom: 8px;
         }
 
+        .summary-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
         .summary-money {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: #111827;
         }
 
-        .table-card {
+        .table-card,
+        .chart-card {
             background: white;
-            padding: 30px;
+            padding: 28px 30px;
             border-radius: 12px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .05);
+            margin-bottom: 24px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .table-title,
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 13px;
         }
 
         thead {
@@ -68,11 +119,17 @@
             color: white;
         }
 
-        th,
+        th {
+            padding: 12px;
+            text-align: left;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: .5px;
+        }
+
         td {
             padding: 14px;
-            text-align: left;
-            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         tbody tr:hover {
@@ -82,10 +139,9 @@
         .status {
             padding: 6px 10px;
             border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
             color: white;
-            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         .good {
@@ -101,57 +157,135 @@
         }
 
         .view-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 7px 14px;
+            border-radius: 7px;
             background: #2563eb;
             color: white;
+            text-decoration: none;
             font-size: 12px;
             font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
         }
 
         .view-btn:hover {
             background: #1d4ed8;
+            color: white;
         }
 
-        .actions {
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .pie-wrap {
             display: flex;
-            gap: 8px;
             align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .pie-canvas-wrap {
+            flex: 1;
+            max-width: 220px;
+            height: 220px;
+        }
+
+        .pie-legend {
+            flex: 1;
+            display: grid;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+
+        .legend-amount {
+            margin-left: auto;
+            font-weight: 600;
+        }
+
+        @media(max-width:900px) {
+
+            .dashboard-grid,
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 
-    {{-- SUMMARY --}}
+    {{-- SUMMARY CARDS --}}
+
     <div class="dashboard-grid">
 
-        <div class="summary-card">
-            <div class="summary-title">Total Contract</div>
-            <div class="summary-money">TSh {{ number_format($totalContract, 2) }}</div>
+        <div class="summary-card blue">
+            <div class="summary-title">Total Projects</div>
+            <div class="summary-number">{{ $totalProjects }}</div>
         </div>
 
-        <div class="summary-card">
+        <div class="summary-card navy">
+            <div class="summary-title">Contract Value</div>
+            <div class="summary-money">
+                TSh {{ number_format($totalContract, 0) }}
+            </div>
+        </div>
+
+        <div class="summary-card amber">
             <div class="summary-title">Allocated</div>
-            <div class="summary-money">TSh {{ number_format($totalAllocated, 2) }}</div>
+            <div class="summary-money">
+                TSh {{ number_format($totalAllocated, 0) }}
+            </div>
         </div>
 
-        <div class="summary-card">
+        <div class="summary-card red">
             <div class="summary-title">Spent</div>
-            <div class="summary-money">TSh {{ number_format($totalSpent, 2) }}</div>
+            <div class="summary-money">
+                TSh {{ number_format($totalSpent, 0) }}
+            </div>
+        </div>
+
+        <div class="summary-card green">
+            <div class="summary-title">Remaining Budget</div>
+            <div class="summary-money">
+                TSh {{ number_format($remainingBudget, 0) }}
+            </div>
+        </div>
+
+        <div class="summary-card purple">
+            <div class="summary-title">Over Budget Projects</div>
+            <div class="summary-number">
+                {{ $overBudgetProjects }}
+            </div>
         </div>
 
     </div>
 
     {{-- PROJECT TABLE --}}
+
     <div class="table-card">
 
-        <h3 style="margin-bottom:20px;">Project Health Overview</h3>
+        <div class="table-header">
+            <div class="table-title">Project Health Overview</div>
+        </div>
 
         <table>
+
             <thead>
                 <tr>
                     <th>Project</th>
+                    <th>Client</th>
                     <th>Progress</th>
+                    <th>Allocated</th>
                     <th>Spent</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -159,11 +293,12 @@
             </thead>
 
             <tbody>
+
                 @foreach ($projects as $project)
                     @php
                         $progress = $project->progress;
-                        $spent = $project->totalExpenses();
                         $allocated = $project->totalAllocated();
+                        $spent = $project->totalExpenses();
 
                         $status = 'good';
                         $label = 'Healthy';
@@ -178,11 +313,25 @@
                     @endphp
 
                     <tr>
-                        <td>{{ $project->project_name }}</td>
+
+                        <td>
+                            <strong>{{ $project->project_name }}</strong>
+                        </td>
+
+                        <td>
+                            {{ $project->client->first_name }}
+                            {{ $project->client->last_name }}
+                        </td>
 
                         <td>{{ round($progress) }}%</td>
 
-                        <td>TSh {{ number_format($spent, 2) }}</td>
+                        <td>
+                            TSh {{ number_format($allocated, 0) }}
+                        </td>
+
+                        <td>
+                            TSh {{ number_format($spent, 0) }}
+                        </td>
 
                         <td>
                             <span class="status {{ $status }}">
@@ -190,94 +339,204 @@
                             </span>
                         </td>
 
-                        <td class="actions">
-                            <a class="view-btn" href="{{ route('projects.overview', $project->id) }}">
+                        <td>
+                            <a href="{{ route('projects.overview', $project->id) }}" class="view-btn">
                                 View
                             </a>
                         </td>
+
                     </tr>
                 @endforeach
+
             </tbody>
+
         </table>
 
     </div>
-    <div class="table-card" style="margin-top: 20px;">
-        <h3 style="margin-bottom:15px;">Allocation vs Expense Overview</h3>
 
-        <canvas id="allocationExpenseChart"></canvas>
-    </div>
+    {{-- CHARTS --}}
 
-    <div class="table-card" style="margin-top:20px;">
-        <h3 style="margin-bottom:15px;">Expense Breakdown by Category</h3>
+    <div class="chart-grid">
 
-        <div
-            style="display:flex; align-items:center; justify-content:space-between; gap:20px; max-width:900px; margin:auto;">
+        <div class="chart-card">
 
-            <!-- LEFT: PIE -->
-            <div style="flex:1; max-width:450px; height:320px;">
-                <canvas id="expensePieChart"></canvas>
+            <div class="chart-title">
+                Allocation vs Expense
             </div>
 
-            <!-- RIGHT: LEGEND -->
-            <div style="flex:1;">
-                <div style="display:grid; gap:10px;">
+            <div style="height:280px">
+                <canvas id="allocationExpenseChart"></canvas>
+            </div>
+
+        </div>
+
+        <div class="chart-card">
+
+            <div class="chart-title">
+                Expense Breakdown
+            </div>
+
+            <div class="pie-wrap">
+
+                <div class="pie-canvas-wrap">
+                    <canvas id="expensePieChart"></canvas>
+                </div>
+
+                <div class="pie-legend">
+
+                    @php
+                        $colors = ['#2563eb', '#dc2626', '#f59e0b', '#16a34a', '#8b5cf6', '#6b7280'];
+                    @endphp
+
                     @foreach ($expenseByCategory as $cat => $value)
-                        <div style="display:flex; align-items:center; gap:10px; font-size:13px; color:#374151;">
-                            <span
-                                style="
-                            width:12px;
-                            height:12px;
-                            border-radius:3px;
-                            display:inline-block;
-                            background:
-                                @switch($loop->index)
-                                    @case(0) #2563eb @break
-                                    @case(1) #dc2626 @break
-                                    @case(2) #f59e0b @break
-                                    @case(3) #16a34a @break
-                                    @case(4) #8b5cf6 @break
-                                    @default #6b7280
-                                @endswitch
-                        "></span>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background:{{ $colors[$loop->index] }}">
+                            </span>
 
                             <span>{{ $cat }}</span>
 
-                            <span style="margin-left:auto; font-weight:600;">
+                            <span class="legend-amount">
                                 TSh {{ number_format($value, 0) }}
                             </span>
                         </div>
                     @endforeach
+
                 </div>
+
             </div>
 
         </div>
+
     </div>
 
-    <div class="table-card" style="margin-top:30px;">
-        <h3 style="margin-bottom:15px;">Monthly Financial Trend</h3>
+    {{-- MONTHLY TREND --}}
 
-        <div style="height:400px;">
+    <div class="chart-card">
+
+        <div class="chart-title">
+            Monthly Financial Trend
+        </div>
+
+        <div style="height:350px;">
             <canvas id="monthlyTrendChart"></canvas>
         </div>
+
+    </div>
+
+    {{-- REPORT GENERATOR --}}
+
+    <div class="table-card">
+
+        <div class="table-header">
+            <div class="table-title">
+                Generate Company Expense Report
+            </div>
+        </div>
+
+        <form method="POST" action="{{ route('company-expenses.report') }}"
+            style="display:grid;
+                 grid-template-columns:1fr 1fr 1fr auto;
+                 gap:12px;
+                 align-items:end;">
+
+            @csrf
+
+            <div>
+                <label>Type</label>
+
+                <select name="report_type" id="dirReportType" onchange="toggleDirType()" class="form-control">
+
+                    <option value="month">
+                        Specific Month
+                    </option>
+
+                    <option value="range">
+                        Date Range
+                    </option>
+
+                </select>
+            </div>
+
+            <div id="dirMonth">
+                <label>Month</label>
+
+                <input type="month" name="month" value="{{ now()->format('Y-m') }}" class="form-control">
+            </div>
+
+            <div id="dirFrom" style="display:none;">
+                <label>From</label>
+
+                <input type="date" name="date_from" class="form-control">
+            </div>
+
+            <div id="dirTo" style="display:none;">
+                <label>To</label>
+
+                <input type="date" name="date_to" class="form-control">
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-dark w-100">
+                    Generate Report
+                </button>
+            </div>
+
+        </form>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const categoryLabels = @json($expenseByCategory->keys());
-        const categoryData = @json($expenseByCategory->values());
-    </script>
-    <script>
-        const labels = @json($labels);
-        const allocated = @json($allocatedData);
-        const spent = @json($expenseData);
-    </script>
-    <script>
-        const pieCtx = document.getElementById('expensePieChart');
 
-        new Chart(pieCtx, {
-            type: 'pie',
+    <script>
+        function toggleDirType() {
+
+            const type =
+                document.getElementById('dirReportType').value;
+
+            document.getElementById('dirMonth').style.display =
+                type === 'month' ? 'block' : 'none';
+
+            document.getElementById('dirFrom').style.display =
+                type === 'range' ? 'block' : 'none';
+
+            document.getElementById('dirTo').style.display =
+                type === 'range' ? 'block' : 'none';
+        }
+
+        new Chart(document.getElementById('allocationExpenseChart'), {
+
+            type: 'bar',
+
             data: {
+                labels: @json($labels),
+                datasets: [{
+                        label: 'Allocated',
+                        data: @json($allocatedData),
+                        backgroundColor: '#2563eb'
+                    },
+                    {
+                        label: 'Spent',
+                        data: @json($expenseData),
+                        backgroundColor: '#dc2626'
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+
+        });
+
+        new Chart(document.getElementById('expensePieChart'), {
+
+            type: 'doughnut',
+
+            data: {
+
                 labels: @json($expenseByCategory->keys()),
+
                 datasets: [{
                     data: @json($expenseByCategory->values()),
                     backgroundColor: [
@@ -291,158 +550,49 @@
                     borderWidth: 0
                 }]
             },
+
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: {
-                    padding: 10
-                },
+                cutout: '65%',
                 plugins: {
                     legend: {
-                        display: false // we are manually controlling legend
+                        display: false
                     }
                 }
             }
-        });
-    </script>
-    <script>
-        const ctx = document.getElementById('allocationExpenseChart');
 
-        new Chart(ctx, {
-            type: 'bar',
+        });
+
+        new Chart(document.getElementById('monthlyTrendChart'), {
+
+            type: 'line',
+
             data: {
-                labels: labels,
+
+                labels: @json($monthlyAllocations->keys()),
+
                 datasets: [{
-                        label: 'Allocated',
-                        data: allocated,
-                        backgroundColor: '#2563eb'
+                        label: 'Allocations',
+                        data: @json($monthlyAllocations->values()),
+                        borderColor: '#16a34a',
+                        tension: 0.3
                     },
                     {
-                        label: 'Spent',
-                        data: spent,
-                        backgroundColor: '#dc2626'
+                        label: 'Expenses',
+                        data: @json($monthlyExpenses->values()),
+                        borderColor: '#dc2626',
+                        tension: 0.3
                     }
                 ]
             },
+
             options: {
                 responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                    title: {
-                        display: true,
-                        text: 'Allocation vs Expense per Project'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+                maintainAspectRatio: false
             }
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-
-            const labels = @json($monthlyAllocations->keys());
-
-            const allocations = @json($monthlyAllocations->values());
-            const expenses = @json($monthlyExpenses->values());
-
-            const ctx = document.getElementById('monthlyTrendChart');
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                            label: 'Allocations',
-                            data: allocations,
-                            borderColor: '#16a34a',
-                            backgroundColor: 'transparent',
-                            tension: 0.3
-                        },
-                        {
-                            label: 'Expenses',
-                            data: expenses,
-                            borderColor: '#dc2626',
-                            backgroundColor: 'transparent',
-                            tension: 0.3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
 
         });
     </script>
 
-    <div class="table-card" style="margin-top:24px;">
-        <h3 style="margin-bottom:6px;">Generate Company Expense Report</h3>
-        <p style="font-size:13px; color:#6b7280; margin-bottom:16px;">
-            Generate a PDF report for company operational expenses.
-        </p>
-        <form method="POST" action="{{ route('company-expenses.report') }}"
-            style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:12px; align-items:end;">
-            @csrf
-            <div>
-                <label style="font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">
-                    Type
-                </label>
-                <select name="report_type" id="dirReportType" onchange="toggleDirType()"
-                    style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:13px;">
-                    <option value="month">Specific Month</option>
-                    <option value="range">Date Range</option>
-                </select>
-            </div>
-            <div id="dirMonth">
-                <label
-                    style="font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">Month</label>
-                <input type="month" name="month" value="{{ now()->format('Y-m') }}"
-                    style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:13px;">
-            </div>
-            <div id="dirFrom" style="display:none;">
-                <label
-                    style="font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">From</label>
-                <input type="date" name="date_from"
-                    style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:13px;">
-            </div>
-            <div id="dirTo" style="display:none;">
-                <label style="font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">To</label>
-                <input type="date" name="date_to"
-                    style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:13px;">
-            </div>
-            <div>
-                <button type="submit"
-                    style="background:#111827; color:white; border:none; padding:10px 18px;
-                           border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; width:100%;">
-                    ⚡ Generate
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <script>
-        function toggleDirType() {
-            const t = document.getElementById('dirReportType').value;
-            document.getElementById('dirMonth').style.display = t === 'month' ? 'block' : 'none';
-            document.getElementById('dirFrom').style.display = t === 'range' ? 'block' : 'none';
-            document.getElementById('dirTo').style.display = t === 'range' ? 'block' : 'none';
-        }
-    </script>
 @endsection

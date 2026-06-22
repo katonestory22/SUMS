@@ -21,7 +21,6 @@ class CompanyExpenseController extends Controller
     ];
     public function index()
     {
-
         $expenses = CompanyExpense::with('recorder')
             ->latest('date')
             ->paginate(15);
@@ -35,11 +34,16 @@ class CompanyExpenseController extends Controller
 
         $totalAll = CompanyExpense::sum('amount');
 
+        $reports = Report::where('type', 'Company Expense Report')
+            ->latest()
+            ->get();
+
         return view('company-expenses.index', compact(
             'expenses',
             'totalThisMonth',
             'totalThisYear',
-            'totalAll'
+            'totalAll',
+            'reports'
         ));
     }
 
