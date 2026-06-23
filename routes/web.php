@@ -201,6 +201,11 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
     Route::get('/audit', [DirectorController::class, 'audit'])
         ->name('director.audit')
         ->middleware('role:director,admin');
+
+    Route::get('allocations/{allocation}/edit', [AllocationController::class, 'edit'])
+        ->name('allocations.edit');
+    Route::put('allocations/{allocation}', [AllocationController::class, 'update'])
+        ->name('allocations.update');
 });
 
 

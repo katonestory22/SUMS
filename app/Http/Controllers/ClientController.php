@@ -11,11 +11,28 @@ class ClientController extends Controller
     /**
      * Display a listing of clients with project summary.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::withCount('projects')
-            ->latest()
-            ->paginate(10);
+        $query = Client::withCount('projects')->latest();
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('first_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('last_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('phone_number', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('has_projects')) {
+            if ($request->has_projects === 'yes') {
+                $query->has('projects');
+            } elseif ($request->has_projects === 'no') {
+                $query->doesntHave('projects');
+            }
+        }
+
+        $clients = $query->paginate(5)->withQueryString();
 
         return view('clients.index', compact('clients'));
     }
