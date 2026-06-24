@@ -31,7 +31,7 @@ class ProjectController extends Controller
             $query->where('project_type_id', $request->type);
         }
 
-        $projects = $query->paginate(10)->withQueryString();
+        $projects = $query->paginate(5)->withQueryString();
 
         $projectTypes = ProjectType::orderBy('name')->get();
 

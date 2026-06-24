@@ -20,17 +20,12 @@
         }
 
         .card {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             background: #fff;
             padding: 35px 40px;
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-        }
-
-        .table-scroll {
-            width: 100%;
-            overflow-x: auto;
         }
 
         .page-header {
@@ -42,39 +37,38 @@
 
         .page-header h3 {
             font-size: 22px;
-            font-weight: 600;
+            font-weight: 700;
             margin: 0;
-            color: #222;
+            color: #111827;
         }
 
         .page-header p {
-            font-size: 14px;
-            color: #666;
+            font-size: 13px;
+            color: #6b7280;
             margin: 4px 0 0 0;
         }
 
         .new-btn {
             background-color: #2c5282;
             color: #fff;
-            padding: 10px 16px;
-            border-radius: 6px;
+            padding: 10px 18px;
+            border-radius: 8px;
             font-weight: 600;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             white-space: nowrap;
-            transition: background-color 0.2s ease;
+            transition: background 0.2s;
         }
 
         .new-btn:hover {
             background-color: #1f3d5a;
         }
 
-        /* ── FILTER BAR ── */
         .filter-bar {
             display: grid;
             grid-template-columns: 1fr 160px 160px auto;
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             align-items: end;
         }
 
@@ -87,24 +81,26 @@
         .filter-label {
             font-size: 11px;
             font-weight: 600;
-            color: #6b7280;
+            color: #9ca3af;
             text-transform: uppercase;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
         }
 
         .filter-input {
             padding: 8px 12px;
-            border: 1px solid #d1d5db;
+            border: 1px solid #e5e7eb;
             border-radius: 7px;
             font-size: 13px;
-            background: white;
+            background: #fafafa;
             font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
         }
 
         .filter-input:focus {
             outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+            background: white;
+            border-color: #2c5282;
+            box-shadow: 0 0 0 2px rgba(44, 82, 130, 0.1);
         }
 
         .filter-actions {
@@ -135,8 +131,8 @@
 
         .btn-clear {
             background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
             text-decoration: none;
             display: inline-block;
             padding: 8px 14px;
@@ -144,39 +140,39 @@
 
         .btn-clear:hover {
             background: #e5e7eb;
+            color: #374151;
         }
 
         .results-meta {
             font-size: 12px;
             color: #9ca3af;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
-        /* ── TABLE ── */
         .projects-table {
             width: 100%;
-            min-width: 1100px;
             border-collapse: collapse;
             font-size: 13px;
             table-layout: fixed;
         }
 
         .projects-table thead {
-            background-color: #2c5282;
-            color: #fff;
+            background: #1f3a5f;
+            color: white;
         }
 
         .projects-table th {
-            padding: 12px 14px;
+            padding: 12px 16px;
             text-align: left;
             font-weight: 600;
-            font-size: 12px;
-            letter-spacing: 0.3px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .projects-table td {
-            padding: 13px 14px;
-            border-bottom: 1px solid #eee;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
             vertical-align: middle;
         }
 
@@ -188,41 +184,41 @@
             background: #f9fafb;
         }
 
-        .col-client {
-            width: 180px;
-        }
-
         .col-project {
-            width: 190px;
+            width: 28%;
         }
 
         .col-location {
-            width: 110px;
+            width: 13%;
         }
 
-        .col-money {
-            width: 118px;
+        .col-contract {
+            width: 15%;
+        }
+
+        .col-balance {
+            width: 15%;
         }
 
         .col-progress {
-            width: 130px;
+            width: 16%;
         }
 
         .col-actions {
-            width: 120px;
+            width: 13%;
         }
 
-        .client-cell {
+        .proj-wrap {
             display: flex;
             align-items: center;
-            gap: 9px;
+            gap: 10px;
         }
 
-        .client-avatar {
-            width: 32px;
-            height: 32px;
+        .proj-avatar {
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            background: #2c5282;
+            background: linear-gradient(135deg, #2c5282, #4a7ab5);
             color: #fff;
             display: flex;
             align-items: center;
@@ -230,37 +226,47 @@
             font-size: 12px;
             font-weight: 700;
             flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(44, 82, 130, 0.3);
         }
 
-        .client-name {
-            font-size: 13px;
-            color: #374151;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .proj-info {
+            min-width: 0;
         }
 
-        .project-name {
-            font-weight: 600;
+        .proj-name {
+            font-weight: 700;
             color: #111827;
+            font-size: 13px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .project-type {
+        .proj-client {
             font-size: 11px;
             color: #9ca3af;
             margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .proj-type {
+            font-size: 10px;
+            color: #d1d5db;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .location-tag {
             display: inline-block;
-            background: #e6f1fb;
-            color: #0c447c;
+            background: #eff6ff;
+            color: #1d4ed8;
             font-size: 11px;
             font-weight: 500;
-            padding: 3px 8px;
+            padding: 3px 9px;
             border-radius: 20px;
             white-space: nowrap;
             overflow: hidden;
@@ -270,69 +276,76 @@
 
         .location-none {
             font-size: 11px;
-            color: #9ca3af;
+            color: #d1d5db;
             font-style: italic;
         }
 
-        .money-cell {
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
+        .money-main {
+            font-size: 13px;
+            font-weight: 700;
         }
 
-        .col-contract {
-            color: #2c5282;
+        .contract-color {
+            color: #1d4ed8;
         }
 
-        .col-spent {
-            color: #c53030;
+        .balance-color {
+            color: #16a34a;
         }
 
-        .col-balance {
-            color: #2f855a;
+        .balance-low {
+            color: #dc2626;
         }
 
         .progress-wrap {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 5px;
         }
 
-        .progress-label {
-            font-size: 11px;
-            font-weight: 600;
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-pct {
+            font-size: 12px;
+            font-weight: 700;
             color: #374151;
         }
 
         .progress-bar {
             width: 100%;
-            background: #e5e7eb;
+            background: #f3f4f6;
             border-radius: 6px;
-            height: 7px;
+            height: 6px;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
             border-radius: 6px;
+            transition: width 0.3s ease;
         }
 
-        .progress-green {
-            background: #2f855a;
+        .fill-green {
+            background: linear-gradient(90deg, #16a34a, #22c55e);
         }
 
-        .progress-orange {
-            background: #dd6b20;
+        .fill-orange {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
         }
 
-        .progress-red {
-            background: #c53030;
+        .fill-red {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
         }
 
         .actions {
             display: flex;
             gap: 5px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .action-btn {
@@ -340,22 +353,23 @@
             align-items: center;
             padding: 5px 10px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             text-decoration: none;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
             border: none;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
+            white-space: nowrap;
         }
 
         .btn-view {
-            background: #e6f1fb;
-            color: #185fa5;
+            background: #eff6ff;
+            color: #1d4ed8;
         }
 
         .btn-view:hover {
-            background: #b5d4f4;
+            background: #dbeafe;
         }
 
         .btn-edit {
@@ -378,12 +392,17 @@
 
         .empty-state {
             text-align: center;
-            padding: 45px;
+            padding: 60px;
             color: #9ca3af;
             font-size: 14px;
         }
 
-        /* ── EDIT MODAL ── */
+        .empty-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        /* EDIT MODAL */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -411,7 +430,7 @@
         }
 
         .edit-modal-header {
-            background: #2c5282;
+            background: #1f3a5f;
             color: white;
             padding: 18px 24px;
             display: flex;
@@ -421,7 +440,7 @@
         }
 
         .edit-modal-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
         }
 
@@ -452,7 +471,7 @@
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             padding: 12px 16px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             font-size: 13px;
             color: #4b5563;
         }
@@ -470,7 +489,7 @@
         .edit-sections {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
         }
 
         .edit-section {
@@ -482,17 +501,18 @@
         .edit-section-header {
             background: #f9fafb;
             padding: 10px 16px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
-            color: #374151;
+            color: #6b7280;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
             border-bottom: 1px solid #e5e7eb;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
             user-select: none;
+            transition: background 0.2s;
         }
 
         .edit-section-header:hover {
@@ -520,15 +540,13 @@
             gap: 5px;
         }
 
-        label {
+        .form-label {
             font-size: 12px;
             font-weight: 600;
             color: #374151;
         }
 
-        input,
-        select,
-        textarea {
+        .form-control {
             padding: 9px 12px;
             border: 1px solid #d1d5db;
             border-radius: 7px;
@@ -540,26 +558,24 @@
             box-sizing: border-box;
         }
 
-        input:focus,
-        select:focus,
-        textarea:focus {
+        .form-control:focus {
             outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+            border-color: #2c5282;
+            box-shadow: 0 0 0 2px rgba(44, 82, 130, 0.1);
         }
 
         .reason-group {
             margin-top: 4px;
         }
 
-        .reason-group textarea {
-            border-color: #f59e0b;
+        .reason-field {
+            border-color: #f59e0b !important;
             resize: vertical;
         }
 
-        .reason-group textarea:focus {
-            border-color: #d97706;
-            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.1);
+        .reason-field:focus {
+            border-color: #d97706 !important;
+            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.1) !important;
         }
 
         .edit-modal-footer {
@@ -582,7 +598,6 @@
             cursor: pointer;
             color: #374151;
             font-family: 'Inter', sans-serif;
-            transition: background 0.2s;
         }
 
         .btn-cancel-modal:hover {
@@ -593,17 +608,16 @@
             padding: 9px 24px;
             border-radius: 8px;
             border: none;
-            background: #2c5282;
+            background: #1f3a5f;
             color: white;
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            transition: background 0.2s;
         }
 
         .btn-save-modal:hover {
-            background: #1f3d5a;
+            background: #152a47;
         }
 
         /* DELETE MODAL */
@@ -658,7 +672,6 @@
             cursor: pointer;
             color: #374151;
             font-family: 'Inter', sans-serif;
-            transition: background 0.2s;
         }
 
         .modal-cancel:hover {
@@ -676,7 +689,6 @@
             font-weight: 700;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            transition: background 0.2s;
         }
 
         .modal-confirm:hover {
@@ -694,16 +706,13 @@
             <a href="{{ route('projects.create') }}" class="new-btn">+ New Project</a>
         </div>
 
-        {{-- FILTER BAR --}}
         <form method="GET" action="{{ route('projects.index') }}">
             <div class="filter-bar">
-
                 <div class="filter-group">
                     <span class="filter-label">Search</span>
                     <input type="text" name="search" class="filter-input" placeholder="Project name or contract number…"
                         value="{{ request('search') }}">
                 </div>
-
                 <div class="filter-group">
                     <span class="filter-label">Location</span>
                     <select name="location" class="filter-input">
@@ -715,7 +724,6 @@
                         @endforeach
                     </select>
                 </div>
-
                 <div class="filter-group">
                     <span class="filter-label">Project Type</span>
                     <select name="type" class="filter-input">
@@ -727,146 +735,136 @@
                         @endforeach
                     </select>
                 </div>
-
                 <div class="filter-actions">
                     <button type="submit" class="filter-btn btn-search">Filter</button>
                     <a href="{{ route('projects.index') }}" class="filter-btn btn-clear">Clear</a>
                 </div>
-
             </div>
         </form>
 
-        {{-- Results meta --}}
         <div class="results-meta">
             Showing {{ $projects->firstItem() ?? 0 }}–{{ $projects->lastItem() ?? 0 }}
             of {{ $projects->total() }} projects
             @if (request('search') || request('location') || request('type'))
-                — <a href="{{ route('projects.index') }}" style="color:#2563eb;">clear filters</a>
+                — <a href="{{ route('projects.index') }}" style="color:#2c5282;">clear filters</a>
             @endif
         </div>
 
-        <div class="table-scroll">
-            <table class="projects-table">
-                <thead>
+        <table class="projects-table">
+            <thead>
+                <tr>
+                    <th class="col-project">Project</th>
+                    <th class="col-location">Location</th>
+                    <th class="col-contract">Contract</th>
+                    <th class="col-balance">Balance</th>
+                    <th class="col-progress">Progress</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($projects as $project)
+                    @php
+                        $spent = $project->allocations->sum(fn($a) => $a->expenses->sum('amount'));
+                        $balance = $project->contract_amount - $spent;
+                        $progress =
+                            $project->contract_amount > 0 ? min(($spent / $project->contract_amount) * 100, 100) : 0;
+                        $fillClass = $progress > 90 ? 'fill-red' : ($progress > 70 ? 'fill-orange' : 'fill-green');
+                        $balanceLow = $balance < $project->contract_amount * 0.2;
+                        $initials =
+                            substr($project->client->first_name, 0, 1) . substr($project->client->last_name, 0, 1);
+                    @endphp
+
                     <tr>
-                        <th class="col-client">Client</th>
-                        <th class="col-project">Project</th>
-                        <th class="col-location">Location</th>
-                        <th class="col-money">Contract</th>
-                        <th class="col-money">Spent</th>
-                        <th class="col-money">Balance</th>
-                        <th class="col-progress">Progress</th>
-                        <th class="col-actions">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($projects as $project)
-                        @php
-                            $spent = $project->allocations->sum(function ($a) {
-                                return $a->expenses->sum('amount');
-                            });
-                            $balance = $project->contract_amount - $spent;
-                            $progress =
-                                $project->contract_amount > 0
-                                    ? min(($spent / $project->contract_amount) * 100, 100)
-                                    : 0;
-                            $barColor =
-                                $progress > 90
-                                    ? 'progress-red'
-                                    : ($progress > 70
-                                        ? 'progress-orange'
-                                        : 'progress-green');
-                            $initials =
-                                substr($project->client->first_name, 0, 1) . substr($project->client->last_name, 0, 1);
-                        @endphp
-
-                        <tr>
-                            <td class="col-client">
-                                <div class="client-cell">
-                                    <div class="client-avatar">{{ strtoupper($initials) }}</div>
-                                    <div class="client-name">
-                                        {{ $project->client->first_name }} {{ $project->client->last_name }}
+                        <td class="col-project">
+                            <div class="proj-wrap">
+                                <div class="proj-avatar">{{ strtoupper($initials) }}</div>
+                                <div class="proj-info">
+                                    <div class="proj-name">{{ $project->project_name }}</div>
+                                    <div class="proj-client">
+                                        {{ $project->client->first_name }}
+                                        {{ $project->client->last_name }}
                                     </div>
+                                    @if ($project->type)
+                                        <div class="proj-type">{{ ucfirst($project->type->name) }}</div>
+                                    @endif
                                 </div>
-                            </td>
+                            </div>
+                        </td>
 
-                            <td class="col-project">
-                                <div class="project-name">{{ $project->project_name }}</div>
-                                <div class="project-type">{{ $project->type->name ?? '—' }}</div>
-                            </td>
+                        <td class="col-location">
+                            @if ($project->location)
+                                <span class="location-tag">{{ $project->location }}</span>
+                            @else
+                                <span class="location-none">Not set</span>
+                            @endif
+                        </td>
 
-                            <td class="col-location">
-                                @if ($project->location)
-                                    <span class="location-tag">{{ $project->location }}</span>
-                                @else
-                                    <span class="location-none">Not set</span>
-                                @endif
-                            </td>
-
-                            <td class="col-money money-cell col-contract">
+                        <td class="col-contract">
+                            <div class="money-main contract-color">
                                 TSh {{ number_format($project->contract_amount, 0) }}
-                            </td>
+                            </div>
+                        </td>
 
-                            <td class="col-money money-cell col-spent">
-                                TSh {{ number_format($spent, 0) }}
-                            </td>
-
-                            <td class="col-money money-cell col-balance">
+                        <td class="col-balance">
+                            <div class="money-main {{ $balanceLow ? 'balance-low' : 'balance-color' }}">
                                 TSh {{ number_format($balance, 0) }}
-                            </td>
+                            </div>
+                            @if ($balanceLow)
+                                <div style="font-size:10px; color:#dc2626; margin-top:2px;">Low balance</div>
+                            @endif
+                        </td>
 
-                            <td class="col-progress">
-                                <div class="progress-wrap">
-                                    <span class="progress-label">{{ number_format($progress, 1) }}%</span>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill {{ $barColor }}" style="width:{{ $progress }}%">
-                                        </div>
+                        <td class="col-progress">
+                            <div class="progress-wrap">
+                                <div class="progress-top">
+                                    <span class="progress-pct">{{ number_format($progress, 1) }}%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill {{ $fillClass }}" style="width:{{ $progress }}%">
                                     </div>
                                 </div>
-                            </td>
+                            </div>
+                        </td>
 
-                            <td class="col-actions">
-                                <div class="actions">
-                                    <a href="{{ route('projects.expenses', $project) }}"
-                                        class="action-btn btn-view">View</a>
+                        <td class="col-actions">
+                            <div class="actions">
+                                <a href="{{ route('projects.expenses', $project) }}" class="action-btn btn-view">View</a>
 
-                                    <button type="button" class="action-btn btn-edit"
-                                        onclick="openEditModal(
-                                        {{ $project->id }},
-                                        '{{ addslashes($project->project_name) }}',
-                                        {{ $project->client_id }},
-                                        {{ $project->project_type_id }},
-                                        '{{ addslashes($project->location ?? '') }}',
-                                        '{{ addslashes($project->contract_number) }}',
-                                        '{{ $project->contract_amount }}',
-                                        '{{ $project->start_date }}',
-                                        '{{ $project->end_date ?? '' }}'
-                                    )">
-                                        Edit
-                                    </button>
+                                <button type="button" class="action-btn btn-edit"
+                                    onclick="openEditModal(
+                                    {{ $project->id }},
+                                    '{{ addslashes($project->project_name) }}',
+                                    {{ $project->client_id }},
+                                    {{ $project->project_type_id }},
+                                    '{{ addslashes($project->location ?? '') }}',
+                                    '{{ addslashes($project->contract_number) }}',
+                                    '{{ $project->contract_amount }}',
+                                    '{{ $project->start_date }}',
+                                    '{{ $project->end_date ?? '' }}'
+                                )">Edit</button>
 
-                                    <button type="button" class="action-btn btn-delete"
-                                        onclick="openDeleteModal({{ $project->id }}, '{{ addslashes($project->project_name) }}')">
-                                        Del
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                <button type="button" class="action-btn btn-delete"
+                                    onclick="openDeleteModal({{ $project->id }}, '{{ addslashes($project->project_name) }}')">
+                                    Del
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
 
-                    @empty
-                        <tr>
-                            <td colspan="8" class="empty-state">
-                                @if (request('search') || request('location') || request('type'))
-                                    No projects match your filters
-                                @else
-                                    No projects registered yet
-                                @endif
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-icon">📂</div>
+                            @if (request('search') || request('location') || request('type'))
+                                No projects match your filters
+                            @else
+                                No projects registered yet
+                            @endif
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
 
         <div style="margin-top:20px;">
             {{ $projects->links() }}
@@ -874,30 +872,23 @@
 
     </div>
 
-    {{-- ── EDIT MODAL ── --}}
+    {{-- EDIT MODAL --}}
     <div class="modal-overlay" id="editModal">
         <div class="edit-modal-box">
-
             <div class="edit-modal-header">
                 <div class="edit-modal-title" id="editModalTitle">Edit Project</div>
                 <button class="edit-modal-close" onclick="closeEditModal()">&#x2715;</button>
             </div>
-
             <div class="edit-modal-body">
-
                 <div class="project-info-strip" id="editProjectInfo"></div>
-
                 <div class="audit-notice">
                     ⚠️ All changes are logged and visible to the director, including what changed and why.
                 </div>
-
                 <form id="editProjectForm" method="POST">
                     @csrf
                     @method('PUT')
-
                     <div class="edit-sections">
 
-                        {{-- Basic Info --}}
                         <div class="edit-section">
                             <div class="edit-section-header" onclick="toggleSection(this)">
                                 Basic Information <span>&#9660;</span>
@@ -905,12 +896,13 @@
                             <div class="edit-section-body">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label>Project Name</label>
-                                        <input type="text" name="project_name" id="edit_project_name">
+                                        <label class="form-label">Project Name</label>
+                                        <input type="text" name="project_name" id="edit_project_name"
+                                            class="form-control">
                                     </div>
                                     <div class="form-group">
-                                        <label>Location</label>
-                                        <select name="location" id="edit_location">
+                                        <label class="form-label">Location</label>
+                                        <select name="location" id="edit_location" class="form-control">
                                             <option value="">Not set</option>
                                             @foreach ($regions as $region)
                                                 <option value="{{ $region }}">{{ $region }}</option>
@@ -921,7 +913,6 @@
                             </div>
                         </div>
 
-                        {{-- Client & Type --}}
                         <div class="edit-section">
                             <div class="edit-section-header" onclick="toggleSection(this)">
                                 Client & Project Type <span>&#9660;</span>
@@ -929,8 +920,8 @@
                             <div class="edit-section-body">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label>Client</label>
-                                        <select name="client_id" id="edit_client_id">
+                                        <label class="form-label">Client</label>
+                                        <select name="client_id" id="edit_client_id" class="form-control">
                                             @foreach ($projects->pluck('client')->unique('id') as $client)
                                                 <option value="{{ $client->id }}">
                                                     {{ $client->first_name }} {{ $client->last_name }}
@@ -939,8 +930,8 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label>Project Type</label>
-                                        <select name="project_type_id" id="edit_project_type_id">
+                                        <label class="form-label">Project Type</label>
+                                        <select name="project_type_id" id="edit_project_type_id" class="form-control">
                                             @foreach ($projectTypes as $type)
                                                 <option value="{{ $type->id }}">{{ ucfirst($type->name) }}</option>
                                             @endforeach
@@ -950,7 +941,6 @@
                             </div>
                         </div>
 
-                        {{-- Contract --}}
                         <div class="edit-section">
                             <div class="edit-section-header" onclick="toggleSection(this)">
                                 Contract Details <span>&#9660;</span>
@@ -958,45 +948,43 @@
                             <div class="edit-section-body">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label>Contract Number</label>
-                                        <input type="text" name="contract_number" id="edit_contract_number">
+                                        <label class="form-label">Contract Number</label>
+                                        <input type="text" name="contract_number" id="edit_contract_number"
+                                            class="form-control">
                                     </div>
                                     <div class="form-group">
-                                        <label>Contract Amount (TSh)</label>
-                                        <input type="text" name="contract_amount" id="edit_contract_amount">
+                                        <label class="form-label">Contract Amount (TSh)</label>
+                                        <input type="text" name="contract_amount" id="edit_contract_amount"
+                                            class="form-control">
                                     </div>
                                 </div>
                                 <div class="form-row" style="margin-top:14px;">
                                     <div class="form-group">
-                                        <label>Start Date</label>
-                                        <input type="date" name="start_date" id="edit_start_date">
+                                        <label class="form-label">Start Date</label>
+                                        <input type="date" name="start_date" id="edit_start_date"
+                                            class="form-control">
                                     </div>
                                     <div class="form-group">
-                                        <label>End Date</label>
-                                        <input type="date" name="end_date" id="edit_end_date">
+                                        <label class="form-label">End Date</label>
+                                        <input type="date" name="end_date" id="edit_end_date" class="form-control">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Reason --}}
                         <div class="reason-group">
-                            <label style="font-size:13px; font-weight:600; color:#374151;">
-                                Reason for Edit *
-                            </label>
-                            <textarea name="reason" rows="2" placeholder="Explain why you are making this change…" required
-                                style="margin-top:6px;"></textarea>
+                            <label class="form-label" style="font-size:13px;">Reason for Edit *</label>
+                            <textarea name="reason" rows="2" class="form-control reason-field"
+                                placeholder="Explain why you are making this change…" required style="margin-top:6px;"></textarea>
                         </div>
 
                     </div>
                 </form>
             </div>
-
             <div class="edit-modal-footer">
                 <button class="btn-cancel-modal" onclick="closeEditModal()">Cancel</button>
                 <button class="btn-save-modal" onclick="submitEditForm()">Save Changes</button>
             </div>
-
         </div>
     </div>
 
@@ -1031,7 +1019,6 @@
             document.getElementById('editModalTitle').innerText = 'Edit — ' + name;
             document.getElementById('editProjectInfo').innerHTML = '<strong>Project:</strong> ' + name;
             document.getElementById('editProjectForm').action = '/projects/' + id;
-
             document.getElementById('edit_project_name').value = name;
             document.getElementById('edit_location').value = location;
             document.getElementById('edit_client_id').value = clientId;
@@ -1040,7 +1027,6 @@
             document.getElementById('edit_contract_amount').value = Number(contractAmount).toLocaleString('en');
             document.getElementById('edit_start_date').value = startDate;
             document.getElementById('edit_end_date').value = endDate;
-
             document.getElementById('editModal').classList.add('open');
         }
 
@@ -1049,8 +1035,8 @@
         }
 
         function submitEditForm() {
-            const amtField = document.getElementById('edit_contract_amount');
-            amtField.value = amtField.value.replace(/,/g, '');
+            const amt = document.getElementById('edit_contract_amount');
+            amt.value = amt.value.replace(/,/g, '');
             document.getElementById('editProjectForm').submit();
         }
 
