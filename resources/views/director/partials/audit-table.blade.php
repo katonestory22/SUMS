@@ -39,9 +39,6 @@
 
                 <td>
                     <div class="subject-name">{{ $row['subject'] }}</div>
-                    @if (!empty($row['audit_type']))
-                        <div class="subject-sub">{{ $row['audit_type'] }}</div>
-                    @endif
                 </td>
 
                 <td><span class="field-badge">{{ $row['field'] }}</span></td>

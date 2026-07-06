@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\Expense;
@@ -19,10 +20,10 @@ class DirectorController extends Controller
 {
     public function index()
     { /*
-   |--------------------------------------------------------------------------
-   | Load Projects With Relationships
-   |--------------------------------------------------------------------------
-   */
+|--------------------------------------------------------------------------
+| Load Projects With Relationships
+|--------------------------------------------------------------------------
+*/
         $projects = Project::with([
             'client',
             'activities',
@@ -163,76 +164,113 @@ class DirectorController extends Controller
     }
     public function audit()
     {
-        $projectEdits = ProjectEdit::with('editor', 'project')
-            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
-                'audit_type' => 'Project',
-                'subject' => $e->project->project_name ?? '—',
-                'editor_name' => $e->editor->name ?? '—',
-                'audit_date' => $e->created_at,
-                'reason' => $e->reason,
-                'field' => $e->field_changed,
-                'old' => $e->old_value,
-                'new' => $e->new_value,
-            ]));
+        $activeTab = request('tab', 'all');
+        $perPage = 5;
+        $page = request('page', 1);
+        $offset = ($page - 1) * $perPage;
 
-        $expenseEdits = ExpenseEdit::with('editor', 'expense.allocation.project')
-            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
-                'audit_type' => 'Expense',
-                'subject' => $e->expense->description ?? '—',
-                'editor_name' => $e->editor->name ?? '—',
-                'audit_date' => $e->created_at,
-                'reason' => $e->reason,
-                'field' => $e->field_changed,
-                'old' => $e->old_value,
-                'new' => $e->new_value,
-            ]));
+        $typeFilter = $activeTab === 'all' ? null : $activeTab;
 
-        $phaseEdits = PhaseEdit::with('editor', 'phase.project')
-            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
-                'audit_type' => 'Phase',
-                'subject' => $e->phase->name ?? '—',
-                'editor_name' => $e->editor->name ?? '—',
-                'audit_date' => $e->created_at,
-                'reason' => $e->reason,
-                'field' => $e->field_changed,
-                'old' => $e->old_value,
-                'new' => $e->new_value,
-            ]));
+        // --- COUNT QUERY (for pagination total & tab badges) ---
+        $countUnion = DB::table('project_edits')->selectRaw("COUNT(*) as cnt, 'Project' as audit_type")
+            ->unionAll(DB::table('expense_edits')->selectRaw("COUNT(*) as cnt, 'Expense' as audit_type"))
+            ->unionAll(DB::table('phase_edits')->selectRaw("COUNT(*) as cnt, 'Phase' as audit_type"))
+            ->unionAll(DB::table('activity_edits')->selectRaw("COUNT(*) as cnt, 'Activity' as audit_type"))
+            ->unionAll(DB::table('company_expense_edits')->selectRaw("COUNT(*) as cnt, 'Company Expense' as audit_type"));
 
-        $activityEdits = ActivityEdit::with('editor', 'activity.phase.project')
-            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
-                'audit_type' => 'Activity',
-                'subject' => $e->activity->name ?? '—',
-                'editor_name' => $e->editor->name ?? '—',
-                'audit_date' => $e->created_at,
-                'reason' => $e->reason,
-                'field' => $e->field_changed,
-                'old' => $e->old_value,
-                'new' => $e->new_value,
-            ]));
+        $counts = DB::table(DB::raw("({$countUnion->toSql()}) as counts"))
+            ->mergeBindings($countUnion)
+            ->get()
+            ->keyBy('audit_type');
 
-        $companyEdits = CompanyExpenseEdit::with('editor', 'expense')
-            ->latest()->get()->map(fn($e) => array_merge($e->toArray(), [
-                'audit_type' => 'Company Expense',
-                'subject' => $e->expense->title ?? '—',
-                'editor_name' => $e->editor->name ?? '—',
-                'audit_date' => $e->created_at,
-                'reason' => $e->reason,
-                'field' => $e->field_changed,
-                'old' => $e->old_value,
-                'new' => $e->new_value,
-            ]));
+        $allCount = $counts->sum('cnt');
+        $tabCounts = [
+            'all' => $allCount,
+            'Project' => $counts['Project']->cnt ?? 0,
+            'Expense' => $counts['Expense']->cnt ?? 0,
+            'Phase' => $counts['Phase']->cnt ?? 0,
+            'Activity' => $counts['Activity']->cnt ?? 0,
+            'Company Expense' => $counts['Company Expense']->cnt ?? 0,
+        ];
 
-        $allEdits = $projectEdits
-            ->concat($expenseEdits)
-            ->concat($phaseEdits)
-            ->concat($activityEdits)
-            ->concat($companyEdits)
-            ->sortByDesc('audit_date')
-            ->values();
+        $total = $typeFilter ? ($tabCounts[$typeFilter] ?? 0) : $allCount;
 
-        return view('company-expenses.audit', [
-            'edits' => $allEdits
+        // --- DATA QUERY (only current page rows) ---
+        $projectQ = DB::table('project_edits as e')
+            ->join('projects as p', 'p.id', '=', 'e.project_id')
+            ->join('users as u', 'u.id', '=', 'e.edited_by')
+            ->selectRaw("'Project' as audit_type, p.project_name as subject, u.name as editor_name,
+                      e.field_changed as field, e.old_value as old, e.new_value as new,
+                      e.reason, e.created_at as audit_date");
+
+        $expenseQ = DB::table('expense_edits as e')
+            ->join('expenses as p', 'p.id', '=', 'e.expense_id')
+            ->join('users as u', 'u.id', '=', 'e.edited_by')
+            ->selectRaw("'Expense' as audit_type, p.description as subject, u.name as editor_name,
+                      e.field_changed as field, e.old_value as old, e.new_value as new,
+                      e.reason, e.created_at as audit_date");
+
+        $phaseQ = DB::table('phase_edits as e')
+            ->join('phases as p', 'p.id', '=', 'e.phase_id')
+            ->join('users as u', 'u.id', '=', 'e.edited_by')
+            ->selectRaw("'Phase' as audit_type, p.name as subject, u.name as editor_name,
+                      e.field_changed as field, e.old_value as old, e.new_value as new,
+                      e.reason, e.created_at as audit_date");
+
+        $activityQ = DB::table('activity_edits as e')
+            ->join('activities as p', 'p.id', '=', 'e.activity_id')
+            ->join('users as u', 'u.id', '=', 'e.edited_by')
+            ->selectRaw("'Activity' as audit_type, p.name as subject, u.name as editor_name,
+                      e.field_changed as field, e.old_value as old, e.new_value as new,
+                      e.reason, e.created_at as audit_date");
+
+        $companyQ = DB::table('company_expense_edits as e')
+            ->join('company_expenses as p', 'p.id', '=', 'e.company_expense_id')
+            ->join('users as u', 'u.id', '=', 'e.edited_by')
+            ->selectRaw("'Company Expense' as audit_type, p.title as subject, u.name as editor_name,
+                      e.field_changed as field, e.old_value as old, e.new_value as new,
+                      e.reason, e.created_at as audit_date");
+
+        // Apply tab filter
+        $queries = collect([$projectQ, $expenseQ, $phaseQ, $activityQ, $companyQ]);
+
+        if ($typeFilter) {
+            $typeMap = [
+                'Project' => $projectQ,
+                'Expense' => $expenseQ,
+                'Phase' => $phaseQ,
+                'Activity' => $activityQ,
+                'Company Expense' => $companyQ,
+            ];
+            $baseQuery = $typeMap[$typeFilter];
+        } else {
+            $baseQuery = $projectQ
+                ->unionAll($expenseQ)
+                ->unionAll($phaseQ)
+                ->unionAll($activityQ)
+                ->unionAll($companyQ);
+        }
+
+        $rows = DB::table(DB::raw("({$baseQuery->toSql()}) as audit_rows"))
+            ->mergeBindings($baseQuery)
+            ->orderByDesc('audit_date')
+            ->offset($offset)
+            ->limit($perPage)
+            ->get()
+            ->map(fn($r) => (array) $r);
+
+        $paginator = new LengthAwarePaginator(
+            $rows,
+            $total,
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return view('director.audit', [
+            'rows' => $paginator,
+            'tabCounts' => $tabCounts,
+            'activeTab' => $activeTab,
         ]);
     }
 }

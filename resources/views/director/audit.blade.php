@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Audit Log')
-@section('page-title', '')
 
 @section('sub-nav')
     <a href="{{ route('dashboard') }}">Home</a>
@@ -40,7 +39,6 @@
             margin-top: 2px;
         }
 
-        /* ── TABS ── */
         .tab-bar {
             display: flex;
             gap: 6px;
@@ -63,6 +61,8 @@
             border-bottom: 2px solid transparent;
             margin-bottom: -2px;
             transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .tab-btn:hover {
@@ -73,19 +73,9 @@
         .tab-btn.active {
             background: white;
             color: #1f3a5f;
-            border-color: #1f3a5f;
             border-bottom: 2px solid #1f3a5f;
         }
 
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* ── TABLE ── */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -188,6 +178,12 @@
             margin-left: 5px;
             vertical-align: middle;
         }
+
+        .pagination-wrap {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
     </style>
 
     <div class="page-card">
@@ -198,7 +194,6 @@
             </div>
         </div>
 
-        {{-- TAB BAR --}}
         <div class="tab-bar">
             @php
                 $tabs = [
@@ -212,43 +207,25 @@
             @endphp
 
             @foreach ($tabs as $key => $label)
-                @php
-                    $count = $key === 'all' ? $allEdits->count() : $allEdits->where('audit_type', $key)->count();
-                @endphp
-                <button class="tab-btn {{ $key === 'all' ? 'active' : '' }}" onclick="switchTab('{{ $key }}')">
+                <a href="{{ request()->fullUrlWithQuery(['tab' => $key, 'page' => 1]) }}"
+                    class="tab-btn {{ $activeTab === $key ? 'active' : '' }}">
                     {{ $label }}
-                    @if ($count > 0)
-                        <span class="count-badge">{{ $count }}</span>
+                    @if (($tabCounts[$key] ?? 0) > 0)
+                        <span class="count-badge">{{ $tabCounts[$key] }}</span>
                     @endif
-                </button>
+                </a>
             @endforeach
         </div>
 
-        {{-- ALL TAB --}}
-        <div class="tab-content active" id="tab-all">
-            @include('director.partials.audit-table', ['rows' => $allEdits, 'showType' => true])
+        @include('director.partials.audit-table', [
+            'rows' => $rows,
+            'showType' => $activeTab === 'all',
+        ])
+
+        <div class="pagination-wrap">
+            {{ $rows->appends(request()->query())->links() }}
         </div>
 
-        {{-- PER TYPE TABS --}}
-        @foreach (['Project', 'Expense', 'Phase', 'Activity', 'Company Expense'] as $type)
-            <div class="tab-content" id="tab-{{ $type }}">
-                @include('director.partials.audit-table', [
-                    'rows' => $allEdits->where('audit_type', $type)->values(),
-                    'showType' => false,
-                ])
-            </div>
-        @endforeach
-
     </div>
-
-    <script>
-        function switchTab(key) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-            document.querySelector(`[onclick="switchTab('${key}')"]`).classList.add('active');
-            document.getElementById('tab-' + key).classList.add('active');
-        }
-    </script>
 
 @endsection
