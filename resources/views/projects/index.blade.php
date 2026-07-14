@@ -240,6 +240,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-transform: uppercase;
         }
 
         .proj-client {
@@ -249,6 +250,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-transform: uppercase;
         }
 
         .proj-type {
@@ -272,6 +274,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 100%;
+            text-transform: uppercase;
         }
 
         .location-none {
@@ -402,7 +405,6 @@
             margin-bottom: 12px;
         }
 
-        /* EDIT MODAL */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -620,7 +622,6 @@
             background: #152a47;
         }
 
-        /* DELETE MODAL */
         .delete-modal-box {
             width: 380px;
             background: #fff;
@@ -781,8 +782,7 @@
                                 <div class="proj-info">
                                     <div class="proj-name">{{ $project->project_name }}</div>
                                     <div class="proj-client">
-                                        {{ $project->client->first_name }}
-                                        {{ $project->client->last_name }}
+                                        {{ $project->client->first_name }} {{ $project->client->last_name }}
                                     </div>
                                     @if ($project->type)
                                         <div class="proj-type">{{ ucfirst($project->type->name) }}</div>
@@ -829,20 +829,18 @@
                         <td class="col-actions">
                             <div class="actions">
                                 <a href="{{ route('projects.expenses', $project) }}" class="action-btn btn-view">View</a>
-
                                 <button type="button" class="action-btn btn-edit"
                                     onclick="openEditModal(
-                                    {{ $project->id }},
-                                    '{{ addslashes($project->project_name) }}',
-                                    {{ $project->client_id }},
-                                    {{ $project->project_type_id }},
-                                    '{{ addslashes($project->location ?? '') }}',
-                                    '{{ addslashes($project->contract_number) }}',
-                                    '{{ $project->contract_amount }}',
-                                    '{{ $project->start_date }}',
-                                    '{{ $project->end_date ?? '' }}'
-                                )">Edit</button>
-
+                                        {{ $project->id }},
+                                        '{{ addslashes($project->project_name) }}',
+                                        {{ $project->client_id }},
+                                        {{ $project->project_type_id }},
+                                        '{{ addslashes($project->location ?? '') }}',
+                                        '{{ addslashes($project->contract_number) }}',
+                                        '{{ $project->contract_amount }}',
+                                        '{{ $project->start_date }}',
+                                        '{{ $project->end_date ?? '' }}'
+                                    )">Edit</button>
                                 <button type="button" class="action-btn btn-delete"
                                     onclick="openDeleteModal({{ $project->id }}, '{{ addslashes($project->project_name) }}')">
                                     Del

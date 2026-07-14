@@ -63,7 +63,6 @@
             background-color: #1f3d5a;
         }
 
-        /* ── FILTER BAR ── */
         .filter-bar {
             display: grid;
             grid-template-columns: 1fr 180px auto;
@@ -146,7 +145,6 @@
             margin-bottom: 14px;
         }
 
-        /* ── TABLE ── */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -180,6 +178,12 @@
         .client-name {
             font-weight: 600;
             color: #111827;
+            text-transform: uppercase;
+        }
+
+        .client-address {
+            color: #6b7280;
+            text-transform: uppercase;
         }
 
         .client-email {
@@ -248,7 +252,6 @@
             font-size: 14px;
         }
 
-        /* ── DELETE MODAL ── */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -413,7 +416,6 @@
             <a href="{{ route('clients.create') }}" class="new-btn">+ Add Client</a>
         </div>
 
-        {{-- FILTER BAR --}}
         <form method="GET" action="{{ route('clients.index') }}">
             <div class="filter-bar">
 
@@ -427,12 +429,9 @@
                     <span class="filter-label">Has Projects</span>
                     <select name="has_projects" class="filter-input">
                         <option value="">All Clients</option>
-                        <option value="yes" {{ request('has_projects') === 'yes' ? 'selected' : '' }}>
-                            With Projects
+                        <option value="yes" {{ request('has_projects') === 'yes' ? 'selected' : '' }}>With Projects
                         </option>
-                        <option value="no" {{ request('has_projects') === 'no' ? 'selected' : '' }}>
-                            No Projects
-                        </option>
+                        <option value="no" {{ request('has_projects') === 'no' ? 'selected' : '' }}>No Projects</option>
                     </select>
                 </div>
 
@@ -444,7 +443,6 @@
             </div>
         </form>
 
-        {{-- Results meta --}}
         <div class="results-meta">
             Showing {{ $clients->firstItem() ?? 0 }}–{{ $clients->lastItem() ?? 0 }}
             of {{ $clients->total() }} clients
@@ -468,7 +466,7 @@
                 @forelse ($clients as $client)
                     <tr>
                         <td class="client-name">{{ $client->full_name }}</td>
-                        <td style="color:#6b7280;">{{ $client->address ?? '—' }}</td>
+                        <td class="client-address">{{ $client->address ?? '—' }}</td>
                         <td><span class="client-email">{{ $client->email }}</span></td>
                         <td style="color:#374151;">{{ $client->phone_number ?? '—' }}</td>
                         <td>
@@ -512,7 +510,6 @@
 
     </div>
 
-    {{-- DELETE MODAL --}}
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-icon">&#x26A0;</div>
