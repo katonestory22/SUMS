@@ -63,7 +63,6 @@
             background-color: #1f3d5a;
         }
 
-        /* ── FILTER BAR ── */
         .filter-bar {
             display: grid;
             grid-template-columns: 1fr 140px 150px 150px auto;
@@ -146,7 +145,6 @@
             margin-bottom: 14px;
         }
 
-        /* ── TABLE ── */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -180,12 +178,14 @@
         .proj-name {
             font-weight: 600;
             color: #111827;
+            text-transform: uppercase;
         }
 
         .proj-client {
             font-size: 11px;
             color: #9ca3af;
             margin-top: 2px;
+            text-transform: uppercase;
         }
 
         .amount-cell {
@@ -283,7 +283,6 @@
             font-size: 14px;
         }
 
-        /* ── DELETE MODAL ── */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -394,7 +393,6 @@
             <a href="{{ route('allocations.create') }}" class="new-btn">+ New Income Received</a>
         </div>
 
-        {{-- FILTER BAR --}}
         <form method="GET" action="{{ route('allocations.index') }}">
             <div class="filter-bar">
 
@@ -432,7 +430,6 @@
             </div>
         </form>
 
-        {{-- Results meta --}}
         <div class="results-meta">
             Showing {{ $allocations->firstItem() ?? 0 }}–{{ $allocations->lastItem() ?? 0 }}
             of {{ $allocations->total() }} allocations
@@ -497,14 +494,9 @@
                             <div class="actions">
                                 <a href="{{ route('expenses.create', $allocation->id) }}" class="action-btn btn-expense">+
                                     Expense</a>
-
                                 <a href="{{ route('allocations.edit', $allocation) }}" class="action-btn btn-edit">Edit</a>
-
                                 <button type="button" class="action-btn btn-delete"
-                                    onclick="openDeleteModal(
-                                    {{ $allocation->id }},
-                                    '{{ addslashes($allocation->project->project_name) }}'
-                                )">
+                                    onclick="openDeleteModal({{ $allocation->id }}, '{{ addslashes($allocation->project->project_name) }}')">
                                     Delete
                                 </button>
                             </div>
@@ -531,7 +523,6 @@
 
     </div>
 
-    {{-- DELETE MODAL --}}
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-icon">&#x26A0;</div>

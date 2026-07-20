@@ -86,7 +86,6 @@
             background: #1d4ed8;
         }
 
-        /* ── SEARCH & FILTER BAR ── */
         .filter-bar {
             display: grid;
             grid-template-columns: 1fr 180px 160px 160px auto;
@@ -154,7 +153,6 @@
             background: #e5e7eb;
         }
 
-        /* ── TABLE ── */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -216,7 +214,6 @@
             font-size: 14px;
         }
 
-        /* ── REPORT SECTION ── */
         .report-card {
             background: white;
             border-radius: 12px;
@@ -281,14 +278,8 @@
             background: #1f2937;
         }
 
-        /* ── GENERATED REPORTS TABLE ── */
         .reports-table table thead {
             background: #374151;
-        }
-
-        .badge-company {
-            background: #fef3c7;
-            color: #92400e;
         }
 
         .action-btn {
@@ -322,7 +313,6 @@
             background: #1d4ed8;
         }
 
-        /* ── MODAL ── */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -409,7 +399,6 @@
         }
     </style>
 
-    {{-- STATS --}}
     <div class="top-stats">
         <div class="stat-card">
             <div class="stat-label">This Month</div>
@@ -425,57 +414,45 @@
         </div>
     </div>
 
-    {{-- EXPENSES TABLE --}}
     <div class="page-card">
         <div class="card-header">
             <div class="card-title">Company Expenses</div>
             <a href="{{ route('company-expenses.create') }}" class="add-btn">+ New Expense</a>
         </div>
 
-        {{-- SEARCH & FILTER --}}
         <form method="GET" action="{{ route('company-expenses.index') }}">
             <div class="filter-bar">
-
                 <div class="filter-group">
                     <span class="filter-label">Search</span>
                     <input type="text" name="search" class="filter-input" placeholder="Search by title or description…"
                         value="{{ request('search') }}">
                 </div>
-
                 <div class="filter-group">
                     <span class="filter-label">Category</span>
                     <select name="category" class="filter-input">
                         <option value="">All Categories</option>
                         @foreach (['Salaries', 'Office Operation Cost', 'Transport', 'Medical Insurance', 'Taxes and Fines', 'Miscellaneous'] as $cat)
                             <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>
-                                {{ $cat }}
-                            </option>
+                                {{ $cat }}</option>
                         @endforeach
                     </select>
                 </div>
-
                 <div class="filter-group">
                     <span class="filter-label">From</span>
                     <input type="date" name="date_from" class="filter-input" value="{{ request('date_from') }}">
                 </div>
-
                 <div class="filter-group">
                     <span class="filter-label">To</span>
                     <input type="date" name="date_to" class="filter-input" value="{{ request('date_to') }}">
                 </div>
-
                 <div style="display:flex; gap:6px; align-items:flex-end;">
                     <button type="submit" class="filter-btn btn-search">Filter</button>
                     <a href="{{ route('company-expenses.index') }}" class="filter-btn btn-clear"
-                        style="text-decoration:none; display:inline-block; padding:8px 14px;">
-                        Clear
-                    </a>
+                        style="text-decoration:none; display:inline-block; padding:8px 14px;">Clear</a>
                 </div>
-
             </div>
         </form>
 
-        {{-- Results meta --}}
         <div class="results-meta">
             Showing {{ $expenses->firstItem() ?? 0 }}–{{ $expenses->lastItem() ?? 0 }}
             of {{ $expenses->total() }} expenses
@@ -506,26 +483,21 @@
                         <td style="color:#6b7280;">{{ $expense->recorder->name ?? '—' }}</td>
                         <td>
                             @if ($expense->receipt)
-                                @php
-                                    $ext = strtolower(pathinfo($expense->receipt, PATHINFO_EXTENSION));
-                                @endphp
-                                @if (in_array($ext, ['jpg', 'jpeg', 'png']))
-                                    <img src="{{ asset('storage/' . $expense->receipt) }}"
-                                        style="width:40px;height:40px;object-fit:cover;border-radius:6px;
-                                            border:1px solid #e5e7eb; cursor:pointer;"
-                                        onclick="window.open('{{ asset('storage/' . $expense->receipt) }}','_blank')" />
-                                @else
-                                    <a href="{{ asset('storage/' . $expense->receipt) }}" target="_blank"
-                                        style="font-size:12px;color:#2563eb;">📄 View</a>
-                                @endif
+                                @php $ext = strtolower(pathinfo($expense->receipt, PATHINFO_EXTENSION)); @endphp
+                                <a href="#" class="action-btn btn-preview"
+                                    onclick="openPreview('{{ asset('storage/' . $expense->receipt) }}', '{{ addslashes($expense->title) }}', '{{ $ext }}')">
+                                    👁 Preview
+                                </a>
+                                <a href="{{ asset('storage/' . $expense->receipt) }}" download
+                                    class="action-btn btn-download">
+                                    ↓ Download
+                                </a>
                             @else
-                                <span style="font-size:12px;color:#d1d5db;">None</span>
+                                <span style="font-size:12px; color:#d1d5db;">None</span>
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('company-expenses.edit', $expense) }}" class="edit-btn">
-                                Edit
-                            </a>
+                            <a href="{{ route('company-expenses.edit', $expense) }}" class="edit-btn">Edit</a>
                         </td>
                     </tr>
                 @empty
@@ -547,7 +519,6 @@
         </div>
     </div>
 
-    {{-- GENERATED REPORTS --}}
     <div class="page-card reports-table">
         <div class="card-header">
             <div class="card-title">Generated Reports</div>
@@ -574,7 +545,7 @@
                             <td>
                                 @if ($report->file_path)
                                     <a href="#" class="action-btn btn-preview"
-                                        onclick="openPreview('{{ route('reports.preview', $report) }}','{{ addslashes($report->title) }}','{{ $ext }}')">
+                                        onclick="openPreview('{{ route('reports.preview', $report) }}', '{{ addslashes($report->title) }}', '{{ $ext }}')">
                                         👁 Preview
                                     </a>
                                     <a href="{{ route('reports.download', $report) }}" class="action-btn btn-download">
@@ -591,17 +562,14 @@
         @endif
     </div>
 
-    {{-- GENERATE REPORT --}}
     <div class="report-card">
         <div class="card-title">Generate Company Expense Report</div>
         <p style="font-size:13px; color:#6b7280; margin-top:4px;">
             Generate a PDF report for a specific month or date range.
         </p>
-
         <form method="POST" action="{{ route('company-expenses.report') }}">
             @csrf
             <div class="report-grid">
-
                 <div class="form-group">
                     <label>Report Type</label>
                     <select name="report_type" id="reportType" onchange="toggleReportType()">
@@ -609,31 +577,25 @@
                         <option value="range">Date Range</option>
                     </select>
                 </div>
-
                 <div class="form-group" id="monthField">
                     <label>Month</label>
                     <input type="month" name="month" value="{{ now()->format('Y-m') }}">
                 </div>
-
                 <div class="form-group" id="fromField" style="display:none;">
                     <label>From</label>
                     <input type="date" name="date_from">
                 </div>
-
                 <div class="form-group" id="toField" style="display:none;">
                     <label>To</label>
                     <input type="date" name="date_to">
                 </div>
-
                 <div class="form-group full">
                     <button type="submit" class="gen-btn">⚡ Generate Report</button>
                 </div>
-
             </div>
         </form>
     </div>
 
-    {{-- PREVIEW MODAL --}}
     <div class="modal-overlay" id="previewModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -655,12 +617,15 @@
         function openPreview(url, title, ext) {
             document.getElementById('modalTitle').innerText = title;
             const body = document.getElementById('modalBody');
-            if (ext === 'pdf') {
+            if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;padding:20px;">
+                    <img src="${url}" style="max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;" />
+                </div>`;
+            } else if (ext === 'pdf') {
                 body.innerHTML = `<iframe src="${url}"></iframe>`;
             } else {
-                body.innerHTML = `
-                <div class="excel-notice">
-                    <div style="font-size:42px;">📊</div>
+                body.innerHTML = `<div class="excel-notice">
+                    <div style="font-size:42px;">📄</div>
                     <div>This file cannot be previewed inline.</div>
                     <a href="${url}" style="color:#2563eb; font-weight:600;">Download to view</a>
                 </div>`;
@@ -674,8 +639,7 @@
         }
 
         window.addEventListener('click', function(e) {
-            const modal = document.getElementById('previewModal');
-            if (e.target === modal) closePreview();
+            if (e.target === document.getElementById('previewModal')) closePreview();
         });
     </script>
 

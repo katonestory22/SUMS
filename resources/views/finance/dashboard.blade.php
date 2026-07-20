@@ -22,7 +22,6 @@
             background: #f4f6f9;
         }
 
-        /* ── SUMMARY GRID ── */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -88,7 +87,6 @@
             color: #111827;
         }
 
-        /* ── TABLE CARD ── */
         .table-card {
             background: white;
             padding: 28px 30px;
@@ -181,6 +179,7 @@
         .client-name {
             font-size: 13px;
             color: #374151;
+            text-transform: uppercase;
         }
 
         .amount {
@@ -191,9 +190,15 @@
         .proj-name {
             font-weight: 600;
             color: #111827;
+            text-transform: uppercase;
         }
 
-        /* ── CHARTS ── */
+        .contract-number {
+            color: #6b7280;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
         .chart-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -215,7 +220,6 @@
             margin-bottom: 16px;
         }
 
-        /* ── PIE LEGEND ── */
         .pie-wrap {
             display: flex;
             align-items: center;
@@ -281,7 +285,6 @@
         }
     </style>
 
-    {{-- ── SUMMARY STATS ── --}}
     <div class="dashboard-grid">
         <div class="summary-card blue">
             <div class="summary-title">Total Clients</div>
@@ -309,7 +312,6 @@
         </div>
     </div>
 
-    {{-- ── RECENT PROJECTS ── --}}
     <div class="table-card">
         <div class="table-header">
             <div class="table-title">Recent Projects</div>
@@ -336,13 +338,12 @@
                             <div class="client-cell">
                                 <div class="client-avatar">{{ strtoupper($initials) }}</div>
                                 <div class="client-name">
-                                    {{ $project->client->first_name }}
-                                    {{ $project->client->last_name }}
+                                    {{ $project->client->first_name }} {{ $project->client->last_name }}
                                 </div>
                             </div>
                         </td>
                         <td><span class="proj-name">{{ $project->project_name }}</span></td>
-                        <td style="color:#6b7280; font-size:12px;">{{ $project->contract_number }}</td>
+                        <td><span class="contract-number">{{ $project->contract_number }}</span></td>
                         <td class="amount">TSh {{ number_format($project->contract_amount, 0) }}</td>
                     </tr>
                 @empty
@@ -354,10 +355,8 @@
         </table>
     </div>
 
-    {{-- ── CHARTS ── --}}
     <div class="chart-grid">
 
-        {{-- Cashflow Bar --}}
         <div class="chart-card">
             <div class="chart-title">Cashflow Overview</div>
             <div style="height:260px;">
@@ -365,7 +364,6 @@
             </div>
         </div>
 
-        {{-- Expense Pie --}}
         <div class="chart-card">
             <div class="chart-title">Expense Breakdown by Category</div>
             <div class="pie-wrap">
@@ -392,7 +390,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        // Cashflow bar
         new Chart(document.getElementById('cashflowChart'), {
             type: 'bar',
             data: {
@@ -426,7 +423,6 @@
             }
         });
 
-        // Expense pie
         new Chart(document.getElementById('expenseChart'), {
             type: 'doughnut',
             data: {
