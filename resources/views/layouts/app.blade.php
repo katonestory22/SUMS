@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="{{ asset('images/swahililogo.png') }} ">
+    <link rel="icon" type="image/png" href="{{ asset('images/swahililogo.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>@yield('title')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,6 +43,84 @@
         .navbar a:hover {
             opacity: 0.7;
         }
+
+        /* ===== BEAUTIFIED NAV LINKS ===== */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #e5e7eb;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link-btn:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            opacity: 1;
+        }
+
+        .nav-link-btn svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .nav-link-btn:hover svg {
+            opacity: 1;
+        }
+
+        .nav-logout-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #e5e7eb;
+            background: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-logout-btn:hover {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .nav-logout-btn svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .nav-logout-btn:hover svg {
+            opacity: 1;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.12);
+            margin: 0 4px;
+        }
+
+        /* ===== END BEAUTIFIED NAV LINKS ===== */
 
         /* SECONDARY NAV */
         .sub-nav-wrapper {
@@ -163,12 +241,26 @@
             </a>
         </div>
 
-        <div>
-            <a href="{{ route('profile.edit') }}">Profile</a>
+        <div class="nav-links">
+            <a href="{{ route('profile.edit') }}" class="nav-link-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                Profile
+            </a>
+
+            <span class="nav-divider"></span>
 
             <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                 @csrf
-                <button style="background:none;border:none;color:white;cursor:pointer;">
+                <button type="submit" class="nav-logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                    </svg>
                     Logout
                 </button>
             </form>
