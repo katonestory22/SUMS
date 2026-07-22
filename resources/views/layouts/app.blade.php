@@ -8,25 +8,29 @@
     <title>@yield('title')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
             font-family: 'Inter', sans-serif;
-
+            background-color: #f4f6f9;
+            padding-top: 130px;
+            /* navbar + subnav height */
         }
 
         /* NAVBAR */
         .navbar {
             background-color: #111827;
-            padding: 20px 60px;
+            padding: 14px 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
         }
 
         .navbar a {
@@ -44,12 +48,19 @@
         .sub-nav-wrapper {
             display: flex;
             justify-content: center;
-            margin-top: 30px;
+            position: fixed;
+            top: 68px;
+            /* sits just below navbar */
+            left: 0;
+            right: 0;
+            z-index: 999;
+            padding: 10px 20px;
+            background: #f4f6f9;
         }
 
         .sub-nav {
             background: white;
-            padding: 15px 30px;
+            padding: 12px 30px;
             border-radius: 50px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
@@ -67,7 +78,7 @@
 
         /* MAIN CONTENT AREA */
         .page-wrapper {
-            padding: 50px 20px 80px;
+            padding: 30px 20px 80px;
             display: flex;
             justify-content: center;
         }
@@ -122,15 +133,13 @@
             text-decoration: none;
             font-weight: 600;
             font-size: 18px;
-            color: #000;
-            /* adjust to your theme */
+            color: white;
         }
 
         .brand-logo {
             height: 40px;
             width: auto;
             border-radius: 6px;
-            /* optional - softer look */
         }
 
         .brand-link:hover {
@@ -166,7 +175,7 @@
         </div>
     </div>
 
-    <!-- ROLE NAVIGATION (Centered under navbar) -->
+    <!-- ROLE NAVIGATION -->
     <div class="sub-nav-wrapper">
         <div class="sub-nav">
             @yield('sub-nav')
@@ -175,21 +184,17 @@
 
     <!-- MAIN CONTENT -->
     <div class="page-wrapper">
-        <div class="main-card">
+        <div class="main-card @yield('card-class')">
 
             <h1>@yield('page-title')</h1>
 
             <div class="feedback">
                 @if (session('success'))
-                    <div class="success">
-                        {{ session('success') }}
-                    </div>
+                    <div class="success">{{ session('success') }}</div>
                 @endif
 
                 @if (session('error'))
-                    <div class="error">
-                        {{ session('error') }}
-                    </div>
+                    <div class="error">{{ session('error') }}</div>
                 @endif
 
                 @if ($errors->any())
