@@ -10,6 +10,7 @@
     <a href="{{ route('company-expenses.index') }}">Company Expenses</a>
     <a href="{{ route('reports.create') }}">Upload Report</a>
     <a href="{{ route('reports.my') }}">My Reports</a>
+    <a href="{{ route('invoices.index') }}">Invoices</a>
 @endsection
 
 @section('content')
