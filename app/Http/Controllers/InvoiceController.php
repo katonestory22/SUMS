@@ -4,82 +4,139 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
-    /**
-     * List saved invoices.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $invoices = Invoice::with('creator')
-            ->latest()
-            ->paginate(10);
+        $query = Invoice::withSum('payments', 'amount')->latest('issue_date');
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('invoice_number', 'like', '%' . $request->search . '%')
+                    ->orWhere('bill_to_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('title', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $invoices = $query->paginate(10)->withQueryString();
 
         return view('invoices.index', compact('invoices'));
     }
 
-    /**
-     * Show the invoice builder.
-     */
     public function create()
     {
-        $nextInvoiceNumber = Invoice::generateInvoiceNumber();
-
-        return view('invoices.create', compact('nextInvoiceNumber'));
-    }
-
-    /**
-     * Validate, calculate totals, generate the branded PDF, and save.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'bill_to_name' => 'required|string|max:255',
-            'bill_to_address' => 'nullable|string|max:500',
-            'bill_to_email' => 'nullable|email|max:255',
-            'bill_to_phone' => 'nullable|string|max:50',
-            'invoice_date' => 'required|date',
-            'due_date' => 'nullable|date|after_or_equal:invoice_date',
-            'notes' => 'nullable|string|max:2000',
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string|max:255',
-            'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.rate' => 'required|numeric|min:0',
-        ]);
-
-        // Server-side recalculation — never trust client-side totals.
-        $items = collect($validated['items'])->map(function ($item) {
-            $amount = round((float) $item['quantity'] * (float) $item['rate'], 2);
-            return [
-                'description' => $item['description'],
-                'quantity' => (float) $item['quantity'],
-                'rate' => (float) $item['rate'],
-                'amount' => $amount,
-            ];
-        })->values()->all();
-
-        $total = collect($items)->sum('amount');
-
         $invoiceNumber = Invoice::generateInvoiceNumber();
 
-        $invoice = Invoice::create([
-            'invoice_number' => $invoiceNumber,
-            'created_by' => auth()->id(),
-            'bill_to_name' => $validated['bill_to_name'],
-            'bill_to_address' => $validated['bill_to_address'] ?? null,
-            'bill_to_email' => $validated['bill_to_email'] ?? null,
-            'bill_to_phone' => $validated['bill_to_phone'] ?? null,
-            'invoice_date' => $validated['invoice_date'],
-            'due_date' => $validated['due_date'] ?? null,
-            'notes' => $validated['notes'] ?? null,
-            'items' => $items,
-            'total' => $total,
-        ]);
+        return view('invoices.create', compact('invoiceNumber'));
+    }
 
-        // Render branded PDF, mirroring ReportController::generate()
+    public function store(Request $request)
+    {
+        $validated = $this->validateInvoice($request);
+
+        $invoice = DB::transaction(function () use ($validated) {
+            $invoice = Invoice::create([
+                'invoice_number' => Invoice::generateInvoiceNumber(),
+                'bill_to_name' => $validated['bill_to_name'],
+                'bill_to_address' => $validated['bill_to_address'] ?? null,
+                'title' => $validated['title'] ?? null,
+                'issue_date' => $validated['issue_date'],
+                'due_date' => $validated['due_date'] ?? null,
+                'status' => $validated['status'] ?? 'draft',
+                'tax_percentage' => $validated['tax_percentage'] ?? 0,
+                'notes' => $validated['notes'] ?? null,
+                'created_by' => auth()->id(),
+            ]);
+
+            $this->syncItems($invoice, $validated['items']);
+            $invoice->recalculateTotals();
+
+            return $invoice;
+        });
+
+        return redirect()
+            ->route('invoices.show', $invoice)
+            ->with('success', 'Invoice created successfully.');
+    }
+
+    public function show(Invoice $invoice)
+    {
+        $invoice->load(['items', 'payments.user', 'creator']);
+
+        return view('invoices.show', [
+            'invoice' => $invoice,
+            'totalPaid' => $invoice->totalPaid(),
+            'balance' => $invoice->balance(),
+        ]);
+    }
+
+    public function edit(Invoice $invoice)
+    {
+        if ($invoice->payments()->exists()) {
+            return redirect()
+                ->route('invoices.show', $invoice)
+                ->with('error', 'This invoice already has payments recorded and cannot be edited. You may still update its status.');
+        }
+
+        $invoice->load('items');
+
+        return view('invoices.edit', compact('invoice'));
+    }
+
+    public function update(Request $request, Invoice $invoice)
+    {
+        if ($invoice->payments()->exists()) {
+            return back()->withErrors([
+                'invoice' => 'This invoice already has payments recorded and cannot be edited.',
+            ]);
+        }
+
+        $validated = $this->validateInvoice($request);
+
+        DB::transaction(function () use ($invoice, $validated) {
+            $invoice->update([
+                'bill_to_name' => $validated['bill_to_name'],
+                'bill_to_address' => $validated['bill_to_address'] ?? null,
+                'title' => $validated['title'] ?? null,
+                'issue_date' => $validated['issue_date'],
+                'due_date' => $validated['due_date'] ?? null,
+                'status' => $validated['status'] ?? $invoice->status,
+                'tax_percentage' => $validated['tax_percentage'] ?? 0,
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+            $invoice->items()->delete();
+            $this->syncItems($invoice, $validated['items']);
+            $invoice->recalculateTotals();
+        });
+
+        return redirect()
+            ->route('invoices.show', $invoice)
+            ->with('success', 'Invoice updated successfully.');
+    }
+
+    public function destroy(Invoice $invoice)
+    {
+        if ($invoice->payments()->exists()) {
+            return redirect()
+                ->route('invoices.index')
+                ->with('error', 'Cannot delete an invoice that already has payments recorded.');
+        }
+
+        $invoice->delete();
+
+        return redirect()
+            ->route('invoices.index')
+            ->with('success', 'Invoice deleted successfully.');
+    }
+
+    public function download(Invoice $invoice)
+    {
+        $invoice->load('items');
+
         $pdf = Pdf::setOptions([
             'isRemoteEnabled' => false,
             'isPhpEnabled' => true,
@@ -90,56 +147,63 @@ class InvoiceController extends Controller
             'chroot' => public_path(),
         ])->loadView('invoices.pdf', compact('invoice'));
 
-        // Filename = timestamp combination, as requested
-        $filename = time() . '_' . $invoiceNumber . '.pdf';
-        $path = 'invoices/' . $filename;
-
-        Storage::disk('public')->put($path, $pdf->output());
-
-        $invoice->update(['file_path' => $path]);
-
-        return redirect()
-            ->route('invoices.index')
-            ->with('success', "Invoice {$invoiceNumber} created successfully.");
+        return $pdf->download($invoice->invoice_number . '.pdf');
     }
 
-    /**
-     * View a saved invoice's details.
-     */
-    public function show(Invoice $invoice)
-    {
-        return view('invoices.show', compact('invoice'));
-    }
-
-    /**
-     * Download the generated PDF.
-     */
-    public function download(Invoice $invoice)
-    {
-        if (!$invoice->file_path || !Storage::disk('public')->exists($invoice->file_path)) {
-            abort(404);
-        }
-
-        return Storage::disk('public')->download(
-            $invoice->file_path,
-            $invoice->invoice_number . '.pdf'
-        ); // @phpstan-ignore-line
-    }
-
-    /**
-     * Preview the PDF inline in the browser.
-     */
     public function preview(Invoice $invoice)
     {
-        if (!$invoice->file_path || !Storage::disk('public')->exists($invoice->file_path)) {
-            abort(404);
-        }
+        $invoice->load('items');
 
-        $fullPath = storage_path('app/public/' . $invoice->file_path);
+        $pdf = Pdf::setOptions([
+            'isRemoteEnabled' => false,
+            'isPhpEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'enable_php' => true,
+            'isHtml5ParserEnabled' => true,
+            'chroot' => public_path(),
+        ])->loadView('invoices.pdf', compact('invoice'));
 
-        return response()->file($fullPath, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . basename($invoice->file_path) . '"',
+        return $pdf->stream($invoice->invoice_number . '.pdf');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    private function validateInvoice(Request $request): array
+    {
+        return $request->validate([
+            'bill_to_name' => ['required', 'string', 'max:255'],
+            'bill_to_address' => ['nullable', 'string'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'issue_date' => ['required', 'date'],
+            'due_date' => ['nullable', 'date', 'after_or_equal:issue_date'],
+            'status' => ['nullable', 'in:draft,sent,cancelled'],
+            'tax_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'notes' => ['nullable', 'string'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.description' => ['required', 'string', 'max:255'],
+            'items.*.quantity' => ['required', 'numeric', 'min:0'],
+            'items.*.rate' => ['required', 'numeric', 'min:0'],
         ]);
+    }
+
+    private function syncItems(Invoice $invoice, array $items): void
+    {
+        foreach ($items as $index => $item) {
+            $quantity = (float) $item['quantity'];
+            $rate = (float) $item['rate'];
+
+            $invoice->items()->create([
+                'description' => $item['description'],
+                'quantity' => $quantity,
+                'rate' => $rate,
+                'amount' => round($quantity * $rate, 2),
+                'sort_order' => $index,
+            ]);
+        }
     }
 }

@@ -1,322 +1,268 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 13px;
+            font-size: 12px;
             color: #2d2d2d;
             margin: 0;
-            padding: 0;
-        }
-
-        /* ── HEADER BANNER ── */
-        .report-header {
-            background: #1f3a5f;
-            padding: 20px 24px;
-            margin-bottom: 0;
+            padding: 30px 40px;
         }
 
         .header-table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
 
-        .header-logo-cell {
-            width: 64px;
-            vertical-align: middle;
-        }
-
-        .header-brand-cell {
-            vertical-align: middle;
-            padding-left: 14px;
-        }
-
-        .brand-name {
-            font-size: 15px;
-            font-weight: bold;
-            color: #C9A84C;
-            letter-spacing: 1px;
-        }
-
-        .brand-sub {
-            font-size: 10px;
-            color: #94a3b8;
-            margin-top: 2px;
-            letter-spacing: 0.5px;
-        }
-
-        .header-report-cell {
-            text-align: right;
-            vertical-align: middle;
-        }
-
-        .report-type-label {
-            font-size: 18px;
-            font-weight: bold;
-            color: #C9A84C;
-            letter-spacing: 0.5px;
-        }
-
-        .report-date-label {
-            font-size: 10px;
-            color: #94a3b8;
-            margin-top: 4px;
-        }
-
-        /* ── GOLD ACCENT BAR ── */
-        .accent-bar {
-            background: #C9A84C;
-            height: 4px;
-            width: 100%;
-        }
-
-        /* ── META INFO STRIP ── */
-        .meta-strip {
-            background: #f8f6f0;
-            border: 1px solid #e8dfc8;
-            border-radius: 6px;
-            padding: 12px 16px;
-            margin: 20px 0 24px;
-        }
-
-        .meta-strip table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0;
-        }
-
-        .meta-strip td {
-            padding: 3px 8px 3px 0;
+        .header-table td {
             border: none;
-            font-size: 12px;
-            color: #4b5563;
+            padding: 0;
+            vertical-align: top;
         }
 
-        .meta-label {
-            font-weight: bold;
-            color: #1f3a5f;
-            width: 90px;
-        }
-
-        /* ── BILL TO ── */
-        .bill-to {
-            margin: 0 0 20px;
-        }
-
-        .bill-to-label {
-            font-size: 11px;
-            font-weight: bold;
-            color: #1f3a5f;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 4px;
-        }
-
-        .bill-to-name {
-            font-size: 14px;
-            font-weight: bold;
-            color: #111827;
-        }
-
-        .bill-to-detail {
-            font-size: 12px;
-            color: #4b5563;
-            margin-top: 2px;
-        }
-
-        /* ── SECTION HEADINGS ── */
-        h2 {
+        .company-name {
             font-size: 13px;
             font-weight: bold;
             color: #1f3a5f;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-top: 24px;
-            margin-bottom: 8px;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #C9A84C;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
         }
 
-        /* ── TABLES ── */
+        .doc-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #374151;
+            text-align: right;
+        }
+
+        .bill-to-label {
+            font-size: 10px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-top: 18px;
+        }
+
+        .bill-to-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #1f3a5f;
+        }
+
+        .meta-table {
+            width: 220px;
+            margin-left: auto;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+
+        .meta-table td {
+            padding: 4px 0;
+            font-size: 11px;
+            border: none;
+        }
+
+        .meta-table .meta-label {
+            color: #6b7280;
+        }
+
+        .balance-due-row td {
+            background: #f3f4f6;
+            padding: 8px 10px !important;
+            font-weight: bold;
+            color: #1f3a5f;
+        }
+
         table.items {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 6px;
+            margin-top: 24px;
         }
 
-        th {
+        table.items th {
             background: #1f3a5f;
             color: #C9A84C;
-            padding: 9px 12px;
+            padding: 8px 10px;
             text-align: left;
-            font-size: 11px;
+            font-size: 10px;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
-            text-transform: uppercase;
         }
 
-        td {
-            padding: 8px 12px;
-            border-bottom: 1px solid #f0ebe0;
-            font-size: 12px;
-            color: #374151;
-        }
-
-        tbody tr:nth-child(even) td {
-            background: #fdf9f2;
-        }
-
-        .total-row td {
-            font-weight: bold;
-            background: #f8f3e6;
-            color: #1f3a5f;
-            border-top: 2px solid #C9A84C;
-            border-bottom: 2px solid #C9A84C;
-            font-size: 14px;
-        }
-
-        .right {
+        table.items th.num,
+        table.items td.num {
             text-align: right;
         }
 
-        .notes {
-            margin-top: 22px;
-            font-size: 12px;
-            color: #4b5563;
-        }
-
-        .notes-label {
-            font-weight: bold;
-            color: #1f3a5f;
-            text-transform: uppercase;
+        table.items td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #eee;
             font-size: 11px;
-            letter-spacing: 0.8px;
-            margin-bottom: 4px;
         }
 
-        /* ── FOOTER ── */
-        .report-footer {
-            margin-top: 40px;
-            border-top: 1px solid #e8dfc8;
-            padding-top: 10px;
-            display: table;
-            width: 100%;
+        .totals-table {
+            width: 260px;
+            margin-left: auto;
+            margin-top: 12px;
+            border-collapse: collapse;
         }
 
-        .footer-left {
-            display: table-cell;
-            font-size: 10px;
-            color: #9ca3af;
+        .totals-table td {
+            padding: 4px 10px;
+            font-size: 11px;
+            border: none;
         }
 
-        .footer-right {
-            display: table-cell;
+        .totals-table .label {
+            color: #6b7280;
+            text-align: left;
+        }
+
+        .totals-table .value {
             text-align: right;
-            font-size: 10px;
-            color: #9ca3af;
         }
 
-        .gold {
-            color: #C9A84C;
+        .totals-table .grand-total td {
+            border-top: 2px solid #1f3a5f;
+            font-weight: bold;
+            font-size: 13px;
+            color: #1f3a5f;
+            padding-top: 8px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #1f3a5f;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #C9A84C;
+            padding-bottom: 4px;
+            margin-top: 28px;
+            margin-bottom: 8px;
+        }
+
+        .notes-list, .terms-block {
+            font-size: 11px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .terms-block .payment-mode {
+            font-weight: bold;
+            color: #1f3a5f;
+            margin-top: 6px;
         }
     </style>
 </head>
-@php
-    $logo = public_path('images/swahililogo.png');
-@endphp
-
 <body>
 
-    {{-- ── HEADER ── --}}
-    <div class="report-header">
-        <table class="header-table">
-            <tr>
-                <td class="header-logo-cell">
-                    <img src="{{ $logo }}" width="54" height="54">
-                </td>
-                <td class="header-brand-cell">
-                    <div class="brand-name">SUMS</div>
-                    <div class="brand-sub">Swahili Units Management System</div>
-                </td>
-                <td class="header-report-cell">
-                    <div class="report-type-label">INVOICE</div>
-                    <div class="report-date-label">{{ $invoice->invoice_number }}</div>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <table class="header-table">
+        <tr>
+            <td style="width:55%;">
+                <img src="{{ public_path('images/swahililogo.png') }}" style="height:55px;">
+                <div class="company-name">SWAHILI UNITS</div>
+            </td>
+            <td style="width:45%;">
+                <div class="doc-title">{{ $invoice->title ?: 'Invoice' }}</div>
+            </td>
+        </tr>
+    </table>
 
-    <div class="accent-bar"></div>
+    <table class="header-table">
+        <tr>
+            <td style="width:55%;">
+                <div class="bill-to-label">Bill To:</div>
+                <div class="bill-to-name">{{ $invoice->bill_to_name }}</div>
+                @if ($invoice->bill_to_address)
+                    <div style="font-size:11px;color:#6b7280;">{{ $invoice->bill_to_address }}</div>
+                @endif
+            </td>
+            <td style="width:45%;">
+                <table class="meta-table">
+                    <tr>
+                        <td class="meta-label">Invoice #:</td>
+                        <td style="text-align:right;">{{ $invoice->invoice_number }}</td>
+                    </tr>
+                    <tr>
+                        <td class="meta-label">Date:</td>
+                        <td style="text-align:right;">{{ $invoice->issue_date->format('M j, Y') }}</td>
+                    </tr>
+                    @if ($invoice->due_date)
+                        <tr>
+                            <td class="meta-label">Due Date:</td>
+                            <td style="text-align:right;">{{ $invoice->due_date->format('M j, Y') }}</td>
+                        </tr>
+                    @endif
+                    <tr class="balance-due-row">
+                        <td>Balance Due:</td>
+                        <td style="text-align:right;">TZS {{ number_format($invoice->balance(), 2) }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 
-    {{-- ── INVOICE META ── --}}
-    <div class="meta-strip">
-        <table>
-            <tr>
-                <td class="meta-label">Invoice Date</td>
-                <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d M Y') }}</td>
-                <td class="meta-label">Due Date</td>
-                <td>{{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') : 'On receipt' }}</td>
-            </tr>
-        </table>
-    </div>
-
-    {{-- ── BILL TO ── --}}
-    <div class="bill-to">
-        <div class="bill-to-label">Bill To</div>
-        <div class="bill-to-name">{{ $invoice->bill_to_name }}</div>
-        @if ($invoice->bill_to_address)
-            <div class="bill-to-detail">{{ $invoice->bill_to_address }}</div>
-        @endif
-        @if ($invoice->bill_to_email)
-            <div class="bill-to-detail">{{ $invoice->bill_to_email }}</div>
-        @endif
-        @if ($invoice->bill_to_phone)
-            <div class="bill-to-detail">{{ $invoice->bill_to_phone }}</div>
-        @endif
-    </div>
-
-    {{-- ── LINE ITEMS ── --}}
-    <h2>Line Items</h2>
     <table class="items">
         <thead>
             <tr>
-                <th>Description</th>
-                <th class="right">Qty</th>
-                <th class="right">Rate</th>
-                <th class="right">Amount</th>
+                <th>Item</th>
+                <th class="num">Quantity</th>
+                <th class="num">Rate</th>
+                <th class="num">Amount</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($invoice->items as $item)
                 <tr>
-                    <td>{{ $item['description'] }}</td>
-                    <td class="right">{{ rtrim(rtrim(number_format($item['quantity'], 2), '0'), '.') }}</td>
-                    <td class="right">{{ number_format($item['rate'], 2) }}</td>
-                    <td class="right">{{ number_format($item['amount'], 2) }}</td>
+                    <td>{{ $item->description }}</td>
+                    <td class="num">{{ rtrim(rtrim(number_format($item->quantity, 2), '0'), '.') }}</td>
+                    <td class="num">TZS {{ number_format($item->rate, 2) }}</td>
+                    <td class="num">TZS {{ number_format($item->amount, 2) }}</td>
                 </tr>
             @endforeach
-            <tr class="total-row">
-                <td colspan="3" class="right">TOTAL</td>
-                <td class="right">{{ number_format($invoice->total, 2) }}</td>
-            </tr>
         </tbody>
     </table>
 
+    <table class="totals-table">
+        <tr>
+            <td class="label">Subtotal:</td>
+            <td class="value">TZS {{ number_format($invoice->subtotal, 2) }}</td>
+        </tr>
+        <tr>
+            <td class="label">Tax ({{ rtrim(rtrim(number_format($invoice->tax_percentage, 2), '0'), '.') }}%):</td>
+            <td class="value">TZS {{ number_format($invoice->tax_amount, 2) }}</td>
+        </tr>
+        <tr class="grand-total">
+            <td>Total:</td>
+            <td class="value">TZS {{ number_format($invoice->total_amount, 2) }}</td>
+        </tr>
+    </table>
+
     @if ($invoice->notes)
-        <div class="notes">
-            <div class="notes-label">Notes</div>
-            {{ $invoice->notes }}
-        </div>
+        <div class="section-title">Notes</div>
+        <div class="notes-list">{!! nl2br(e($invoice->notes)) !!}</div>
     @endif
 
-    {{-- ── FOOTER ── --}}
-    <div class="report-footer">
-        <div class="footer-left">Generated by <span class="gold">SUMS</span> — Swahili Units Management System</div>
-        <div class="footer-right">{{ now()->format('d M Y, H:i') }}</div>
+    {{-- Hardcoded payment terms / payment instructions block --}}
+    <div class="section-title">Terms</div>
+    <div class="terms-block">
+        <div style="font-weight:bold;">Payment Modes.</div>
+
+        <div class="payment-mode">1. Bank</div>
+        Bank Name: Stanbic Bank<br>
+        Account Number (TZS): 9120003763372<br>
+        Account Number (USD): 9120003764085<br>
+        Account Name: Swahili Units
+
+        <div class="payment-mode">2. Mobile Money</div>
+        Phone Numbers: +255762156762<br>
+        Lipa Number (Voda): 5573030
+
+        <div class="payment-mode">3. Cash</div>
     </div>
 
 </body>
-
 </html>

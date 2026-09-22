@@ -187,22 +187,32 @@ class ProjectController extends Controller
             ->with('success', 'Project deleted successfully.');
     }
 
-    public function expenses(Project $project, Request $request)
-    {
-        $expenses = Expense::with(['allocation', 'user'])
-            ->whereHas('allocation', function ($q) use ($project) {
-                $q->where('project_id', $project->id);
-            })
-            ->orderBy('date', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(10);
-
-        if ($request->ajax()) {
-            return view('projects.partials.expense_cards', compact('expenses'))->render();
-        }
-
-        return view('projects.expenses', compact('project', 'expenses'));
+   public function expenses(Project $project, Request $request)
+{
+    if ($request->boolean('stats')) {
+        return response()->json([
+            'total_allocated' => $project->totalAllocated(),
+            'total_expenses' => $project->totalExpenses(),
+            'remaining_balance' => $project->remainingBalance(),
+        ]);
     }
+
+    $project->load('client');
+
+    $expenses = Expense::with(['allocation', 'user'])
+        ->whereHas('allocation', function ($q) use ($project) {
+            $q->where('project_id', $project->id);
+        })
+        ->orderBy('date', 'desc')
+        ->orderBy('id', 'desc')
+        ->paginate(10);
+
+    if ($request->ajax()) {
+        return view('projects.partials.expense_cards', compact('expenses'))->render();
+    }
+
+    return view('projects.expenses', compact('project', 'expenses'));
+}
     public function overview(Project $project)
     {
         $project->load([

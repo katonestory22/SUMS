@@ -16,7 +16,8 @@ use App\Http\Controllers\{
     TechnicalController,
     ReportController,
     CompanyExpenseController,
-    InvoiceController
+    InvoiceController,
+    PaymentController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -209,8 +210,8 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         ->name('allocations.update');
 
 
-      /*
-    | INVOICES — Finance & Director (admin always allowed via RoleMiddleware)
+    /*
+    | INVOICES + PAYMENTS — Finance & Director (admin always allowed via RoleMiddleware)
     */
     Route::middleware('role:finance,director,admin')->group(function () {
         Route::get('/invoices', [InvoiceController::class, 'index'])
@@ -221,10 +222,21 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
             ->name('invoices.store');
         Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])
             ->name('invoices.show');
+        Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])
+            ->name('invoices.edit');
+        Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])
+            ->name('invoices.update');
+        Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])
+            ->name('invoices.destroy');
         Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])
             ->name('invoices.download');
         Route::get('/invoices/{invoice}/preview', [InvoiceController::class, 'preview'])
             ->name('invoices.preview');
+
+        Route::post('/invoices/{invoice}/payments', [PaymentController::class, 'store'])
+            ->name('invoices.payments.store');
+        Route::delete('/invoices/{invoice}/payments/{payment}', [PaymentController::class, 'destroy'])
+            ->name('invoices.payments.destroy');
     });
 
 });

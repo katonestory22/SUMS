@@ -30,21 +30,75 @@
         .page-header {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 26px;
+        }
+
+        .clients-heading {
+            display: inline-flex;
             align-items: center;
-            margin-bottom: 20px;
+            gap: 10px;
+            padding: 8px 18px 8px 14px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #1f3a5f, #16283f);
+            box-shadow: 0 6px 16px rgba(31, 58, 95, 0.25);
         }
 
-        .page-header h3 {
-            font-size: 22px;
-            font-weight: 600;
-            margin: 0;
-            color: #222;
+        .clients-heading svg {
+            width: 20px;
+            height: 20px;
+            color: #C9A84C;
+            flex-shrink: 0;
         }
 
-        .page-header p {
-            font-size: 14px;
-            color: #666;
-            margin: 4px 0 0 0;
+        .clients-heading-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            background: linear-gradient(90deg, #ffffff, #e9d9a8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .page-subline {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .live-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #16a34a;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+            animation: pulse-dot 1.8s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+            70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .subline-divider {
+            color: #d1d5db;
         }
 
         .new-btn {
@@ -410,8 +464,17 @@
 
         <div class="page-header">
             <div>
-                <h3>Registered Clients</h3>
-                <p>Manage project owners, stakeholders and client records</p>
+                <div class="clients-heading">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                    </svg>
+                    <span class="clients-heading-text">Registered Clients</span>
+                </div>
+                <div class="page-subline">
+                    <span class="live-tag"><span class="live-dot"></span> {{ $clients->total() }} total</span>
+                    <span class="subline-divider">•</span>
+                    <span>Manage project owners, stakeholders and client records</span>
+                </div>
             </div>
             <a href="{{ route('clients.create') }}" class="new-btn">+ Add Client</a>
         </div>

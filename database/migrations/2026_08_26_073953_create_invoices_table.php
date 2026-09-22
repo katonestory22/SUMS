@@ -4,40 +4,35 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_number')->unique();
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
 
-            // Manual, standalone bill-to details (not linked to Client/Project records)
+            // Manual/standalone billing details (not linked to Client/Project records)
             $table->string('bill_to_name');
             $table->text('bill_to_address')->nullable();
-            $table->string('bill_to_email')->nullable();
-            $table->string('bill_to_phone')->nullable();
+            $table->string('title')->nullable(); // e.g. "Architectural Drawings"
 
-            $table->date('invoice_date');
+            $table->date('issue_date');
             $table->date('due_date')->nullable();
-            $table->text('notes')->nullable();
+            $table->string('status')->default('draft'); // draft, sent, cancelled
 
-            // Line items stored as JSON: [{description, quantity, rate, amount}, ...]
-            $table->json('items');
-            $table->decimal('total', 14, 2)->default(0);
+            $table->decimal('subtotal', 15, 2)->default(0);
+            $table->decimal('tax_percentage', 5, 2)->default(0);
+            $table->decimal('tax_amount', 15, 2)->default(0);
+            $table->decimal('total_amount', 15, 2)->default(0);
 
-            $table->string('file_path')->nullable();
+            $table->text('notes')->nullable(); // terms/notes shown on the invoice
 
+            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('invoices');
