@@ -4,13 +4,7 @@
 @section('page-title', '')
 
 @section('sub-nav')
-    <a href="{{ route('dashboard') }}">
-        Dashboard
-    </a>
-
-    <a href="{{ route('invoices.index') }}">
-        Back to Invoices
-    </a>
+    <a href="{{ route('invoices.index') }}">Back to Invoices</a>
 @endsection
 
 @section('content')

@@ -27,14 +27,14 @@ class Invoice extends Model
     ];
 
     protected $casts = [
-        'issue_date' => 'date',
-        'due_date' => 'date',
-        'subtotal' => 'decimal:2',
-        'discount_value' => 'decimal:2',
+        'issue_date'      => 'date',
+        'due_date'        => 'date',
+        'subtotal'        => 'decimal:2',
+        'discount_value'  => 'decimal:2',
         'discount_amount' => 'decimal:2',
-        'tax_percentage' => 'decimal:2',
-        'tax_amount' => 'decimal:2',
-        'total_amount' => 'decimal:2',
+        'tax_percentage'  => 'decimal:2',
+        'tax_amount'      => 'decimal:2',
+        'total_amount'    => 'decimal:2',
     ];
 
     /*
@@ -45,7 +45,8 @@ class Invoice extends Model
 
     public function items()
     {
-        return $this->hasMany(InvoiceItem::class)->orderBy('sort_order');
+        return $this->hasMany(InvoiceItem::class)
+            ->orderBy('sort_order');
     }
 
     public function payments()
@@ -60,34 +61,39 @@ class Invoice extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Numbering
+    | Invoice Number
     |--------------------------------------------------------------------------
     */
 
     public static function generateInvoiceNumber(): string
     {
-        $year = now()->format('Y');
+        return DB::transaction(function () {
 
-        return DB::transaction(function () use ($year) {
-            $lastNumber = static::where('invoice_number', 'like', "INV-{$year}-%")
+            $year = now()->year;
+
+            $lastInvoice = self::whereYear('created_at', $year)
                 ->lockForUpdate()
                 ->orderByDesc('id')
-                ->value('invoice_number');
+                ->first();
 
-            $nextSeq = 1;
-
-            if ($lastNumber) {
-                $parts = explode('-', $lastNumber);
-                $nextSeq = ((int) end($parts)) + 1;
+            if ($lastInvoice && preg_match('/INV-' . $year . '-(\d+)/', $lastInvoice->invoice_number, $matches)) {
+                $nextNumber = ((int) $matches[1]) + 1;
+            } else {
+                $nextNumber = 1;
             }
 
-            return sprintf('INV-%s-%04d', $year, $nextSeq);
+            return 'INV-' . $year . '-' . str_pad(
+                $nextNumber,
+                4,
+                '0',
+                STR_PAD_LEFT
+            );
         });
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Financial Logic (mirrors Project::remainingBalance() pattern)
+    | Payment Calculations
     |--------------------------------------------------------------------------
     */
 
@@ -100,6 +106,12 @@ class Invoice extends Model
     {
         return $this->total_amount - $this->totalPaid();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Status
+    |--------------------------------------------------------------------------
+    */
 
     public function getPaymentStatusAttribute()
     {
@@ -125,34 +137,48 @@ class Invoice extends Model
         return 'unpaid';
     }
 
-    /**
-     * Recalculate subtotal/discount/tax/total from current line items
-     * and the invoice's stored discount_type + discount_value.
-     *
-     * Order: subtotal -> discount -> (subtotal - discount) -> tax -> total.
-     * Call this after items are created/updated/deleted, or after the
-     * discount fields change.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Recalculate Invoice Totals
+    |--------------------------------------------------------------------------
+    */
+
     public function recalculateTotals(): void
     {
         $subtotal = $this->items()->sum('amount');
 
         $discountAmount = 0;
 
-        if ($this->discount_type === 'percentage' && $this->discount_value > 0) {
-            $discountAmount = round($subtotal * ($this->discount_value / 100), 2);
-        } elseif ($this->discount_type === 'fixed' && $this->discount_value > 0) {
-            $discountAmount = min((float) $this->discount_value, $subtotal); // never exceed subtotal
+        if (
+            $this->discount_type === 'percentage'
+            && $this->discount_value > 0
+        ) {
+            $discountAmount = round(
+                $subtotal * ($this->discount_value / 100),
+                2
+            );
+        } elseif (
+            $this->discount_type === 'fixed'
+            && $this->discount_value > 0
+        ) {
+            $discountAmount = min(
+                (float) $this->discount_value,
+                $subtotal
+            );
         }
 
         $discountedSubtotal = $subtotal - $discountAmount;
-        $taxAmount = round($discountedSubtotal * ($this->tax_percentage / 100), 2);
+
+        $taxAmount = round(
+            $discountedSubtotal * ($this->tax_percentage / 100),
+            2
+        );
 
         $this->update([
-            'subtotal' => $subtotal,
+            'subtotal'        => $subtotal,
             'discount_amount' => $discountAmount,
-            'tax_amount' => $taxAmount,
-            'total_amount' => $discountedSubtotal + $taxAmount,
+            'tax_amount'      => $taxAmount,
+            'total_amount'    => $discountedSubtotal + $taxAmount,
         ]);
     }
 }

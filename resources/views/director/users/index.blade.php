@@ -4,7 +4,7 @@
 
 @section('sub-nav')
     <a href="{{ route('director.dashboard') }}">Dashboard</a>
-    <a href="{{ route('director.users') }}">Users</a>
+
 @endsection
 
 @section('content')

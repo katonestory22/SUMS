@@ -211,34 +211,67 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
 
     /*
-    | INVOICES + PAYMENTS — Finance & Director (admin always allowed via RoleMiddleware)
-    */
-    Route::middleware('role:finance,director,admin')->group(function () {
+  |--------------------------------------------------------------------------
+  | INVOICES — Preparation & Viewing
+  | Technical + Finance + Director + Admin
+  |--------------------------------------------------------------------------
+  */
+    Route::middleware('role:technical,finance,director,admin')->group(function () {
+
+        // Invoice list
         Route::get('/invoices', [InvoiceController::class, 'index'])
             ->name('invoices.index');
+
+        // Prepare a new invoice
         Route::get('/invoices/create', [InvoiceController::class, 'create'])
             ->name('invoices.create');
+
+        // Save a newly prepared invoice
         Route::post('/invoices', [InvoiceController::class, 'store'])
             ->name('invoices.store');
+
+        // View invoice
         Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])
             ->name('invoices.show');
-        Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])
-            ->name('invoices.edit');
-        Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])
-            ->name('invoices.update');
-        Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])
-            ->name('invoices.destroy');
-        Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])
-            ->name('invoices.download');
+
+        // Preview invoice
         Route::get('/invoices/{invoice}/preview', [InvoiceController::class, 'preview'])
             ->name('invoices.preview');
 
+        // Download invoice PDF
+        Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])
+            ->name('invoices.download');
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | INVOICES — Financial Management
+    | Finance + Director + Admin only
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:finance,director,admin')->group(function () {
+
+        // Edit invoice
+        Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])
+            ->name('invoices.edit');
+
+        // Update invoice
+        Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])
+            ->name('invoices.update');
+
+        // Delete invoice
+        Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])
+            ->name('invoices.destroy');
+
+        // Record payment
         Route::post('/invoices/{invoice}/payments', [PaymentController::class, 'store'])
             ->name('invoices.payments.store');
+
+        // Remove payment
         Route::delete('/invoices/{invoice}/payments/{payment}', [PaymentController::class, 'destroy'])
             ->name('invoices.payments.destroy');
     });
-
 });
 
 
