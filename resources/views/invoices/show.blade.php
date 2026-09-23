@@ -4,12 +4,13 @@
 @section('page-title', '')
 
 @section('sub-nav')
-    <a href="{{ route('invoices.index') }}">Back to Invoices</a>
-    @if (!$invoice->payments->count())
-        <a href="{{ route('invoices.edit', $invoice) }}">Edit</a>
-    @endif
-    <a href="{{ route('invoices.preview', $invoice) }}" target="_blank">Preview PDF</a>
-    <a href="{{ route('invoices.download', $invoice) }}">Download PDF</a>
+    <a href="{{ route('dashboard') }}">
+        Dashboard
+    </a>
+
+    <a href="{{ route('invoices.index') }}">
+        Back to Invoices
+    </a>
 @endsection
 
 @section('content')
@@ -18,7 +19,7 @@
         body { font-family: 'Inter', sans-serif; background: #f4f6f9; }
         .wrapper { max-width: 980px; margin: 0 auto; padding: 20px; display: grid; gap: 20px; }
         .card { background: #fff; border-radius: 14px; padding: 26px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
-        .head-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+        .head-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-wrap: wrap; gap: 14px; }
         h2 { font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 4px; }
         .sub { font-size: 13px; color: #6b7280; }
         .badge { padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
@@ -27,6 +28,21 @@
         .badge-partially_paid { background: #fef9c3; color: #854d0e; }
         .badge-overdue { background: #fee2e2; color: #991b1b; }
         .badge-cancelled { background: #e5e7eb; color: #6b7280; }
+
+        .action-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+        .action-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+            text-decoration: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif;
+            transition: background 0.15s ease;
+        }
+        .btn-preview { background: #eff6ff; color: #1d4ed8; }
+        .btn-preview:hover { background: #dbeafe; }
+        .btn-download { background: #1f3a5f; color: #fff; }
+        .btn-download:hover { background: #16283f; }
+        .btn-edit { background: #f0fdf4; color: #15803d; }
+        .btn-edit:hover { background: #dcfce7; }
+
         table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
         th { background: #1f3a5f; color: #C9A84C; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; text-align: left; }
         td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #374151; }
@@ -42,6 +58,41 @@
         .alert-success { background: #dcfce7; color: #166534; padding: 10px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
         .alert-error { background: #fee2e2; color: #991b1b; padding: 10px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
         .empty { color: #9ca3af; font-size: 13px; padding: 12px 0; }
+
+        /* ---------- Preview modal (same pattern as Reports page) ---------- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #fff;
+            width: 92%;
+            max-width: 900px;
+            height: 85vh;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 20px; border-bottom: 1px solid #e5e7eb; background: #1f3a5f; color: #fff;
+        }
+        .modal-title { font-size: 15px; font-weight: 700; }
+        .modal-close {
+            background: none; border: none; cursor: pointer; color: #fff; font-size: 20px;
+            line-height: 1; padding: 4px 6px; border-radius: 4px; transition: background 0.2s;
+        }
+        .modal-close:hover { background: rgba(255,255,255,0.15); }
+        .modal-body { flex: 1; overflow: hidden; }
+        .modal-body iframe { width: 100%; height: 100%; border: none; }
     </style>
 
     <div class="wrapper">
@@ -74,6 +125,22 @@
                 <span class="badge badge-{{ $invoice->payment_status }}">{{ str_replace('_', ' ', $invoice->payment_status) }}</span>
             </div>
 
+            <div class="action-bar">
+                <button type="button" class="action-btn btn-preview" onclick="openInvoicePreview()">
+                    &#128065; Preview
+                </button>
+                <a href="{{ route('invoices.download', $invoice) }}" class="action-btn btn-download">
+                    &#8659; Download PDF
+                </a>
+                @if (!$invoice->payments->count())
+                    <a href="{{ route('invoices.edit', $invoice) }}" class="action-btn btn-edit">
+                        &#9998; Edit Invoice
+                    </a>
+                @endif
+            </div>
+        </div>
+
+        <div class="card">
             <table>
                 <thead>
                     <tr>
@@ -97,6 +164,19 @@
 
             <div class="totals-box">
                 <div class="row"><span>Subtotal</span><span>TZS {{ number_format($invoice->subtotal, 2) }}</span></div>
+
+                @if ($invoice->discount_amount > 0)
+                    <div class="row">
+                        <span>
+                            Discount
+                            @if ($invoice->discount_type === 'percentage')
+                                ({{ rtrim(rtrim(number_format($invoice->discount_value, 2), '0'), '.') }}%)
+                            @endif
+                        </span>
+                        <span>&minus; TZS {{ number_format($invoice->discount_amount, 2) }}</span>
+                    </div>
+                @endif
+
                 <div class="row"><span>Tax ({{ rtrim(rtrim(number_format($invoice->tax_percentage, 2), '0'), '.') }}%)</span><span>TZS {{ number_format($invoice->tax_amount, 2) }}</span></div>
                 <div class="row total"><span>Total</span><span>TZS {{ number_format($invoice->total_amount, 2) }}</span></div>
                 <div class="row"><span>Paid</span><span>TZS {{ number_format($totalPaid, 2) }}</span></div>
@@ -185,5 +265,37 @@
             @endif
         </div>
     </div>
+
+    {{-- PREVIEW MODAL --}}
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">{{ $invoice->invoice_number }}.pdf</div>
+                <button class="modal-close" onclick="closeInvoicePreview()" aria-label="Close preview">&#x2715;</button>
+            </div>
+            <div class="modal-body" id="previewModalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        function openInvoicePreview() {
+            const body = document.getElementById('previewModalBody');
+            body.innerHTML = `<iframe src="{{ route('invoices.preview', $invoice) }}"></iframe>`;
+            document.getElementById('previewModal').classList.add('open');
+        }
+
+        function closeInvoicePreview() {
+            document.getElementById('previewModal').classList.remove('open');
+            document.getElementById('previewModalBody').innerHTML = '';
+        }
+
+        window.addEventListener('click', function (e) {
+            if (e.target === document.getElementById('previewModal')) closeInvoicePreview();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeInvoicePreview();
+        });
+    </script>
 
 @endsection

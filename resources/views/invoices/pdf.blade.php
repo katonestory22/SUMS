@@ -231,6 +231,20 @@
             <td class="label">Subtotal:</td>
             <td class="value">TZS {{ number_format($invoice->subtotal, 2) }}</td>
         </tr>
+
+        @if ($invoice->discount_amount > 0)
+            <tr>
+                <td class="label">
+                    Discount
+                    @if ($invoice->discount_type === 'percentage')
+                        ({{ rtrim(rtrim(number_format($invoice->discount_value, 2), '0'), '.') }}%)
+                    @endif
+                    :
+                </td>
+                <td class="value">&minus; TZS {{ number_format($invoice->discount_amount, 2) }}</td>
+            </tr>
+        @endif
+
         <tr>
             <td class="label">Tax ({{ rtrim(rtrim(number_format($invoice->tax_percentage, 2), '0'), '.') }}%):</td>
             <td class="value">TZS {{ number_format($invoice->tax_amount, 2) }}</td>

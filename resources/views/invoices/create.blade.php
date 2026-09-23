@@ -28,17 +28,72 @@
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
         }
 
-        h2 {
+        .invoice-heading {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px 8px 14px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #1f3a5f, #16283f);
+            box-shadow: 0 6px 16px rgba(31, 58, 95, 0.25);
+            margin-bottom: 10px;
+        }
+
+        .invoice-heading svg {
+            width: 20px;
+            height: 20px;
+            color: #C9A84C;
+            flex-shrink: 0;
+        }
+
+        .invoice-heading-text {
             font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            background: linear-gradient(90deg, #ffffff, #e9d9a8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .live-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
             font-weight: 700;
-            color: #111827;
-            margin-bottom: 6px;
+            color: #16a34a;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+            animation: pulse-dot 1.8s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+            70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .subline-divider {
+            color: #d1d5db;
         }
 
         .subtitle {
             font-size: 13px;
             color: #6b7280;
             margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .form-grid {
@@ -145,15 +200,17 @@
 
         .totals-box {
             margin-left: auto;
-            width: 320px;
+            width: 360px;
         }
 
         .totals-box .row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 6px 0;
             font-size: 14px;
             color: #4b5563;
+            gap: 10px;
         }
 
         .totals-box .row.total {
@@ -163,6 +220,24 @@
             font-weight: 700;
             font-size: 16px;
             color: #111827;
+        }
+
+        .discount-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .discount-controls select {
+            width: 92px;
+            padding: 7px 8px;
+            font-size: 12px;
+        }
+
+        .discount-controls input {
+            width: 100px;
+            padding: 7px 8px;
+            text-align: right;
         }
 
         .btn {
@@ -208,8 +283,17 @@
     <div class="wrapper">
         <div class="card">
 
-            <h2>New Invoice</h2>
-            <div class="subtitle">Invoice #{{ $invoiceNumber }} &middot; standalone invoice, not linked to a project record</div>
+            <div class="invoice-heading">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m9.75 0a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" />
+                </svg>
+                <span class="invoice-heading-text">New Invoice</span>
+            </div>
+            <div class="subtitle">
+                <span class="live-tag"><span class="live-dot"></span> Invoice #{{ $invoiceNumber }}</span>
+                <span class="subline-divider">&middot;</span>
+                standalone invoice, not linked to a project record
+            </div>
 
             @if ($errors->any())
                 <div class="error-list">
@@ -274,6 +358,23 @@
                         <span>Subtotal</span>
                         <span id="subtotal-display">TZS 0.00</span>
                     </div>
+
+                    <div class="row">
+                        <span>Discount</span>
+                        <div class="discount-controls">
+                            <select name="discount_type" id="discount_type">
+                                <option value="" {{ in_array(old('discount_type'), [null, ''], true) ? 'selected' : '' }}>None</option>
+                                <option value="percentage" {{ old('discount_type') === 'percentage' ? 'selected' : '' }}>%</option>
+                                <option value="fixed" {{ old('discount_type') === 'fixed' ? 'selected' : '' }}>TZS</option>
+                            </select>
+                            <input type="number" name="discount_value" id="discount_value" value="{{ old('discount_value', 0) }}" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <span>Discount Amount</span>
+                        <span id="discount-amount-display">TZS 0.00</span>
+                    </div>
+
                     <div class="row">
                         <span>Tax (%)</span>
                         <input type="number" name="tax_percentage" id="tax_percentage" value="{{ old('tax_percentage', 0) }}" min="0" max="100" step="0.1" style="width:80px; text-align:right;">
@@ -319,6 +420,9 @@
         let rowIndex = 0;
         const itemsBody = document.getElementById('items-body');
         const template = document.getElementById('row-template');
+        const discountType = document.getElementById('discount_type');
+        const discountValue = document.getElementById('discount_value');
+        const taxPercentageInput = document.getElementById('tax_percentage');
 
         function formatMoney(n) {
             return 'TZS ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -344,17 +448,33 @@
                 subtotal += amount;
             });
 
-            const taxPct = parseFloat(document.getElementById('tax_percentage').value) || 0;
-            const taxAmount = subtotal * (taxPct / 100);
-            const total = subtotal + taxAmount;
+            // Discount: percentage of subtotal, or a flat TZS amount (capped at subtotal)
+            let discountAmount = 0;
+            const dType = discountType.value;
+            const dValue = parseFloat(discountValue.value) || 0;
+
+            if (dType === 'percentage' && dValue > 0) {
+                discountAmount = subtotal * (dValue / 100);
+            } else if (dType === 'fixed' && dValue > 0) {
+                discountAmount = Math.min(dValue, subtotal);
+            }
+
+            const discountedSubtotal = subtotal - discountAmount;
+
+            const taxPct = parseFloat(taxPercentageInput.value) || 0;
+            const taxAmount = discountedSubtotal * (taxPct / 100);
+            const total = discountedSubtotal + taxAmount;
 
             document.getElementById('subtotal-display').textContent = formatMoney(subtotal);
+            document.getElementById('discount-amount-display').textContent = formatMoney(discountAmount);
             document.getElementById('tax-display').textContent = formatMoney(taxAmount);
             document.getElementById('total-display').textContent = formatMoney(total);
         }
 
         document.getElementById('add-row-btn').addEventListener('click', addRow);
-        document.getElementById('tax_percentage').addEventListener('input', recalculate);
+        taxPercentageInput.addEventListener('input', recalculate);
+        discountType.addEventListener('change', recalculate);
+        discountValue.addEventListener('input', recalculate);
 
         itemsBody.addEventListener('input', function (e) {
             if (e.target.classList.contains('qty-input') || e.target.classList.contains('rate-input')) {

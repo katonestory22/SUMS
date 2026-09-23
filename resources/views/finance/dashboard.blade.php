@@ -8,10 +8,9 @@
     <a href="{{ route('projects.index') }}">Projects</a>
     <a href="{{ route('allocations.index') }}">Income</a>
     <a href="{{ route('company-expenses.index') }}">Company Expenses</a>
-    <a href="{{ route('reports.create') }}">Upload Report</a>
     <a href="{{ route('reports.my') }}">My Reports</a>
     <a href="{{ route('invoices.index') }}">Invoices</a>
-~@endsection
+@endsection
 
 @section('content')
 

@@ -46,6 +46,8 @@ class InvoiceController extends Controller
                 'issue_date' => $validated['issue_date'],
                 'due_date' => $validated['due_date'] ?? null,
                 'status' => $validated['status'] ?? 'draft',
+                'discount_type' => $validated['discount_type'] ?? null,
+                'discount_value' => $validated['discount_value'] ?? 0,
                 'tax_percentage' => $validated['tax_percentage'] ?? 0,
                 'notes' => $validated['notes'] ?? null,
                 'created_by' => auth()->id(),
@@ -104,6 +106,8 @@ class InvoiceController extends Controller
                 'issue_date' => $validated['issue_date'],
                 'due_date' => $validated['due_date'] ?? null,
                 'status' => $validated['status'] ?? $invoice->status,
+                'discount_type' => $validated['discount_type'] ?? null,
+                'discount_value' => $validated['discount_value'] ?? 0,
                 'tax_percentage' => $validated['tax_percentage'] ?? 0,
                 'notes' => $validated['notes'] ?? null,
             ]);
@@ -175,6 +179,10 @@ class InvoiceController extends Controller
 
     private function validateInvoice(Request $request): array
     {
+        $request->merge([
+            'discount_value' => str_replace(',', '', (string) $request->input('discount_value', 0)),
+        ]);
+
         return $request->validate([
             'bill_to_name' => ['required', 'string', 'max:255'],
             'bill_to_address' => ['nullable', 'string'],
@@ -182,6 +190,8 @@ class InvoiceController extends Controller
             'issue_date' => ['required', 'date'],
             'due_date' => ['nullable', 'date', 'after_or_equal:issue_date'],
             'status' => ['nullable', 'in:draft,sent,cancelled'],
+            'discount_type' => ['nullable', 'in:percentage,fixed'],
+            'discount_value' => ['nullable', 'numeric', 'min:0'],
             'tax_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'notes' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
