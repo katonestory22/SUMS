@@ -8,6 +8,7 @@
     <a href="{{ route('director.users') }}">Users</a>
     <a href="{{ route('reports.index') }}">Reports</a>
     <a href="{{ route('director.audit') }}">Audit Log</a>
+     <a href="{{ route('invoices.index') }}">Invoices</a>
 @endsection
 
 @section('content')

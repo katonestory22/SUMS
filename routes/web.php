@@ -245,30 +245,35 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
 
     /*
-    |--------------------------------------------------------------------------
-    | INVOICES — Financial Management
-    | Finance + Director + Admin only
-    |--------------------------------------------------------------------------
-    */
-    Route::middleware('role:finance,director,admin')->group(function () {
+     | INVOICES + PAYMENTS
+     | Technical can create, view, preview and download invoices.
+     | Editing, deleting, and payments stay Finance/Director/Admin only.
+     */
+    Route::middleware('role:technical,finance,director,admin')->group(function () {
+        Route::get('/invoices', [InvoiceController::class, 'index'])
+            ->name('invoices.index');
+        Route::get('/invoices/create', [InvoiceController::class, 'create'])
+            ->name('invoices.create');
+        Route::post('/invoices', [InvoiceController::class, 'store'])
+            ->name('invoices.store');
+        Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])
+            ->name('invoices.show');
+        Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])
+            ->name('invoices.download');
+        Route::get('/invoices/{invoice}/preview', [InvoiceController::class, 'preview'])
+            ->name('invoices.preview');
+    });
 
-        // Edit invoice
+    Route::middleware('role:finance,director,admin')->group(function () {
         Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])
             ->name('invoices.edit');
-
-        // Update invoice
         Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])
             ->name('invoices.update');
-
-        // Delete invoice
         Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])
             ->name('invoices.destroy');
 
-        // Record payment
         Route::post('/invoices/{invoice}/payments', [PaymentController::class, 'store'])
             ->name('invoices.payments.store');
-
-        // Remove payment
         Route::delete('/invoices/{invoice}/payments/{payment}', [PaymentController::class, 'destroy'])
             ->name('invoices.payments.destroy');
     });

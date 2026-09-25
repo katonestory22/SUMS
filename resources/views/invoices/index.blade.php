@@ -12,30 +12,6 @@
 
 @section('content')
 
-    @php
-        /*
-    |--------------------------------------------------------------------------
-    | Safe Summary Calculations
-    |--------------------------------------------------------------------------
-    | Controller values are used when available. The fallbacks keep the
-    | page functional even if those values were not supplied.
-    */
-
-        $fallbackBilled = $invoices->sum(function ($invoice) {
-            return (float) $invoice->total_amount;
-        });
-
-        $fallbackPaid = $invoices->sum(function ($invoice) {
-            return (float) ($invoice->payments_sum_amount ?? 0);
-        });
-
-        $fallbackOutstanding = max($fallbackBilled - $fallbackPaid, 0);
-
-        $displayBilled = $totalBilled ?? $fallbackBilled;
-        $displayPaid = $totalPaid ?? $fallbackPaid;
-        $displayOutstanding = $totalOutstanding ?? $fallbackOutstanding;
-    @endphp
-
     <div class="invoice-page">
 
         {{-- ================================================================
@@ -104,8 +80,10 @@
 
         {{-- ================================================================
          SUMMARY CARDS
+         Financial totals (Billed / Paid / Outstanding) are hidden from the
+         technical role — they only need the invoice count.
     ================================================================= --}}
-        <div class="summary-grid">
+        <div class="summary-grid @if (auth()->user()->role === 'technical') summary-grid-solo @endif">
 
             {{-- Total Invoices --}}
             <div class="summary-card">
@@ -134,83 +112,84 @@
                 <div class="summary-accent"></div>
             </div>
 
+            @if (auth()->user()->role !== 'technical')
+                {{-- Total Billed --}}
+                <div class="summary-card">
+                    <div class="summary-card-top">
 
-            {{-- Total Billed --}}
-            <div class="summary-card">
-                <div class="summary-card-top">
+                        <div>
+                            <div class="summary-label">Total Billed</div>
 
-                    <div>
-                        <div class="summary-label">Total Billed</div>
-
-                        <div class="summary-value money">
-                            TZS {{ number_format($displayBilled, 2) }}
+                            <div class="summary-value money">
+                                TZS {{ number_format($totalBilled, 2) }}
+                            </div>
                         </div>
+
+                        <div class="summary-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path d="M12 1v22" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7" />
+                            </svg>
+                        </div>
+
                     </div>
 
-                    <div class="summary-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="1.8">
-                            <path d="M12 1v22" />
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7" />
-                        </svg>
-                    </div>
-
+                    <div class="summary-accent"></div>
                 </div>
 
-                <div class="summary-accent"></div>
-            </div>
 
+                {{-- Total Paid --}}
+                <div class="summary-card">
+                    <div class="summary-card-top">
 
-            {{-- Total Paid --}}
-            <div class="summary-card">
-                <div class="summary-card-top">
+                        <div>
+                            <div class="summary-label">Total Paid</div>
 
-                    <div>
-                        <div class="summary-label">Total Paid</div>
-
-                        <div class="summary-value money">
-                            TZS {{ number_format($displayPaid, 2) }}
+                            <div class="summary-value money">
+                                TZS {{ number_format($totalPaid, 2) }}
+                            </div>
                         </div>
+
+                        <div class="summary-icon paid">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path d="M20 6L9 17l-5-5" />
+                            </svg>
+                        </div>
+
                     </div>
 
-                    <div class="summary-icon paid">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="1.8">
-                            <path d="M20 6L9 17l-5-5" />
-                        </svg>
-                    </div>
-
+                    <div class="summary-accent"></div>
                 </div>
 
-                <div class="summary-accent"></div>
-            </div>
 
+                {{-- Outstanding --}}
+                <div class="summary-card">
+                    <div class="summary-card-top">
 
-            {{-- Outstanding --}}
-            <div class="summary-card">
-                <div class="summary-card-top">
+                        <div>
+                            <div class="summary-label">Outstanding</div>
 
-                    <div>
-                        <div class="summary-label">Outstanding</div>
-
-                        <div class="summary-value money outstanding-value">
-                            TZS {{ number_format($displayOutstanding, 2) }}
+                            <div class="summary-value money outstanding-value">
+                                TZS {{ number_format($totalOutstanding, 2) }}
+                            </div>
                         </div>
+
+                        <div class="summary-icon outstanding">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 8v4" />
+                                <path d="M12 16h.01" />
+                            </svg>
+                        </div>
+
                     </div>
 
-                    <div class="summary-icon outstanding">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="1.8">
-                            <circle cx="12" cy="12" r="9" />
-                            <path d="M12 8v4" />
-                            <path d="M12 16h.01" />
-                        </svg>
-                    </div>
-
+                    <div class="summary-accent"></div>
                 </div>
-
-                <div class="summary-accent"></div>
-            </div>
+            @endif
 
         </div>
 
@@ -436,7 +415,7 @@
                                     {{-- Bill To --}}
                                     <td>
                                         <div class="client-name">
-                                            {{ $invoice->bill_to }}
+                                            {{ $invoice->bill_to_name }}
                                         </div>
 
                                         @if ($invoice->bill_to_address)
@@ -583,8 +562,8 @@
 
 
         /* ================================================================
-                   PAGE HEADER
-                ================================================================= */
+                       PAGE HEADER
+                    ================================================================= */
 
         .invoices-heading {
             display: flex;
@@ -642,8 +621,8 @@
 
 
         /* ================================================================
-                   ALERTS
-                ================================================================= */
+                       ALERTS
+                    ================================================================= */
 
         .alert {
             display: flex;
@@ -677,14 +656,19 @@
 
 
         /* ================================================================
-                   SUMMARY CARDS
-                ================================================================= */
+                       SUMMARY CARDS
+                    ================================================================= */
 
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 15px;
             margin-bottom: 18px;
+        }
+
+        .summary-grid-solo {
+            grid-template-columns: minmax(0, 1fr);
+            max-width: 320px;
         }
 
         .summary-card {
@@ -770,8 +754,8 @@
 
 
         /* ================================================================
-                   CREATE INVOICE CTA
-                ================================================================= */
+                       CREATE INVOICE CTA
+                    ================================================================= */
 
         .create-invoice-cta {
             position: relative;
@@ -880,8 +864,8 @@
 
 
         /* ================================================================
-                   MAIN CARD
-                ================================================================= */
+                       MAIN CARD
+                    ================================================================= */
 
         .card {
             background: #ffffff;
@@ -916,8 +900,8 @@
 
 
         /* ================================================================
-                   TOOLBAR
-                ================================================================= */
+                       TOOLBAR
+                    ================================================================= */
 
         .invoice-toolbar {
             display: flex;
@@ -1013,8 +997,8 @@
 
 
         /* ================================================================
-                   TABLE
-                ================================================================= */
+                       TABLE
+                    ================================================================= */
 
         .table-wrapper {
             width: 100%;
@@ -1064,8 +1048,8 @@
 
 
         /* ================================================================
-                   TABLE CONTENT
-                ================================================================= */
+                       TABLE CONTENT
+                    ================================================================= */
 
         .invoice-number {
             color: #1f3a5f;
@@ -1128,8 +1112,8 @@
 
 
         /* ================================================================
-                   STATUS BADGES
-                ================================================================= */
+                       STATUS BADGES
+                    ================================================================= */
 
         .status-badge {
             display: inline-flex;
@@ -1171,8 +1155,8 @@
 
 
         /* ================================================================
-                   ACTIONS
-                ================================================================= */
+                       ACTIONS
+                    ================================================================= */
 
         .actions {
             display: flex;
@@ -1218,8 +1202,8 @@
 
 
         /* ================================================================
-                   EMPTY STATE
-                ================================================================= */
+                       EMPTY STATE
+                    ================================================================= */
 
         .empty-state {
             padding: 55px 20px;
@@ -1275,8 +1259,8 @@
 
 
         /* ================================================================
-                   PAGINATION
-                ================================================================= */
+                       PAGINATION
+                    ================================================================= */
 
         .pagination-wrapper {
             margin-top: 18px;
@@ -1284,8 +1268,8 @@
 
 
         /* ================================================================
-                   RESPONSIVE
-                ================================================================= */
+                       RESPONSIVE
+                    ================================================================= */
 
         @media (max-width: 1000px) {
 

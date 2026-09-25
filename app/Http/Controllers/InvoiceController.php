@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -21,9 +23,33 @@ class InvoiceController extends Controller
             });
         }
 
-        $invoices = $query->paginate(10)->withQueryString();
+        if ($request->filled('status')) {
+            // payment_status is a computed accessor, not a DB column, so we
+            // filter in memory against the (already search-filtered) result set.
+            $matching = $query->get()
+                ->filter(fn($invoice) => $invoice->payment_status === $request->status)
+                ->values();
 
-        return view('invoices.index', compact('invoices'));
+            $perPage = 10;
+            $page = LengthAwarePaginator::resolveCurrentPage();
+
+            $invoices = new LengthAwarePaginator(
+                $matching->slice(($page - 1) * $perPage, $perPage)->values(),
+                $matching->count(),
+                $perPage,
+                $page,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
+        } else {
+            $invoices = $query->paginate(10)->withQueryString();
+        }
+
+        // Company-wide totals, independent of search/status filters or pagination.
+        $totalBilled = (float) Invoice::sum('total_amount');
+        $totalPaid = (float) Payment::sum('amount');
+        $totalOutstanding = max($totalBilled - $totalPaid, 0);
+
+        return view('invoices.index', compact('invoices', 'totalBilled', 'totalPaid', 'totalOutstanding'));
     }
 
     public function create()

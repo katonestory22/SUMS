@@ -6,6 +6,7 @@
 @section('sub-nav')
     <a href="{{ route('technical.dashboard') }}">Home</a>
     <a href="{{ route('reports.my') }}">My Reports</a>
+    <a href="{{ route('invoices.index') }}">Invoices</a>
 @endsection
 
 @section('content')
