@@ -269,13 +269,18 @@
         Bank Name: Stanbic Bank<br>
         Account Number (TZS): 9120003763372<br>
         Account Number (USD): 9120003764085<br>
-        Account Name: Swahili Units
+        Account Name: Swahili Units<br>
+        <br>
+        Bank Name: CRDB<br>
+        Account Number (TZS): 0152460276700<br>
+        Account Name: Julius Deus Kato
 
         <div class="payment-mode">2. Mobile Money</div>
         Phone Numbers: +255762156762<br>
         Lipa Number (Voda): 5573030
 
         <div class="payment-mode">3. Cash</div>
+
     </div>
 
 </body>

@@ -130,7 +130,140 @@
         .btn-save:hover {
             background: #1e40af;
         }
+
+        /* ---------- Read-only account info card ---------- */
+        .info-card {
+            max-width: 720px;
+            margin: 20px auto 0;
+            background: #fff;
+            padding: 30px 35px;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            display: flex;
+            gap: 22px;
+            align-items: flex-start;
+        }
+
+        .info-avatar {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .info-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .info-badges {
+            display: flex;
+            gap: 8px;
+            margin: 6px 0 14px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .badge-role {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 24px;
+            font-size: 13px;
+        }
+
+        .info-grid .label {
+            color: #9ca3af;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .info-grid .value {
+            color: #374151;
+        }
+
+        @media (max-width: 600px) {
+            .info-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .info-badges {
+                justify-content: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+        }
     </style>
+
+    @php $user = auth()->user(); @endphp
+
+    <div class="info-card">
+        <img src="{{ asset($user->passport_photo ?? 'images/default.png') }}" class="info-avatar" alt="Profile photo">
+
+        <div style="flex:1;">
+            <div class="info-name">{{ $user->name }}</div>
+
+            <div class="info-badges">
+                <span class="badge badge-role">{{ $user->role }}</span>
+                <span class="badge badge-{{ $user->status }}">{{ $user->status }}</span>
+            </div>
+
+            <div class="info-grid">
+                <div>
+                    <div class="label">Email</div>
+                    <div class="value">{{ $user->email }}</div>
+                </div>
+                <div>
+                    <div class="label">Phone</div>
+                    <div class="value">{{ $user->phone ?? '—' }}</div>
+                </div>
+                <div>
+                    <div class="label">Address</div>
+                    <div class="value">{{ $user->address ?? '—' }}</div>
+                </div>
+                <div>
+                    <div class="label">Date of Birth</div>
+                    <div class="value">{{ optional($user->date_of_birth)->format('M j, Y') ?? '—' }}</div>
+                </div>
+                <div>
+                    <div class="label">Member Since</div>
+                    <div class="value">{{ $user->created_at->format('M j, Y') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="card-box">
 
