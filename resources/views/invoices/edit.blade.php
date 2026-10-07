@@ -348,7 +348,34 @@
 
                 <hr class="divider">
 
+                @php
+                    $allMethods = config('payment_methods');
+                    // Failed validation: what was ticked. Otherwise: what's saved. Old invoices (null): defaults.
+if (session()->hasOldInput()) {
+    $selectedMethods = (array) old('payment_methods', []);
+} elseif ($invoice->payment_methods !== null) {
+    $selectedMethods = $invoice->payment_methods;
+} else {
+    $selectedMethods = collect($allMethods)->filter(fn($m) => $m['default'])->keys()->all();
+                    }
+                @endphp
+
                 <div class="form-grid">
+                    <div class="full">
+                        <label>Payment Info to Display on Invoice</label>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                            @foreach ($allMethods as $key => $method)
+                                <label
+                                    style="display:flex; align-items:center; gap:8px; font-weight:500; margin-bottom:0; cursor:pointer;">
+                                    <input type="checkbox" name="payment_methods[]" value="{{ $key }}"
+                                        style="width:auto; padding:0;"
+                                        {{ in_array($key, $selectedMethods) ? 'checked' : '' }}>
+                                    {{ $method['label'] }}
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <div class="full">
                         <label>Notes / Terms (optional)</label>
                         <textarea name="notes" rows="4">{{ old('notes', $invoice->notes) }}</textarea>
@@ -368,11 +395,8 @@
             <td><input type="text" name="items[__i__][description]" required></td>
             <td><input type="number" name="items[__i__][quantity]" class="qty-input" value="1" min="0"
                     step="0.01" required></td>
-            <td><input type="number" name="item<td>
-    <input
-        type="text" name="items[__i__][rate]"
-                    class="rate-input money-input" value="0" inputmode="decimal" autocomplete="off" required>
-            </td>s[__i__][rate]" class="rate-input" value="0" min="0" step="0.01" required></td>
+            <td><input type="number" name="items[__i__][rate]" class="rate-input" value="0" min="0"
+                    step="0.01" required></td>
             <td class="amount-cell">TZS 0.00</td>
             <td><button type="button" class="remove-row">&times;</button></td>
         </tr>

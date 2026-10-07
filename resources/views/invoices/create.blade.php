@@ -77,9 +77,17 @@
         }
 
         @keyframes pulse-dot {
-            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
-            70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55);
+            }
+
+            70% {
+                box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
         }
 
         .subline-divider {
@@ -284,8 +292,10 @@
         <div class="card">
 
             <div class="invoice-heading">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m9.75 0a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v6m3-3H9m9.75 0a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" />
                 </svg>
                 <span class="invoice-heading-text">New Invoice</span>
             </div>
@@ -311,12 +321,14 @@
                 <div class="form-grid">
                     <div class="full">
                         <label>Invoice Title (optional)</label>
-                        <input type="text" name="title" placeholder="e.g. Architectural Drawings" value="{{ old('title') }}">
+                        <input type="text" name="title" placeholder="e.g. Architectural Drawings"
+                            value="{{ old('title') }}">
                     </div>
 
                     <div>
                         <label>Bill To</label>
-                        <input type="text" name="bill_to_name" required value="{{ old('bill_to_name') }}" placeholder="Client name">
+                        <input type="text" name="bill_to_name" required value="{{ old('bill_to_name') }}"
+                            placeholder="Client name">
                     </div>
 
                     <div>
@@ -326,7 +338,8 @@
 
                     <div>
                         <label>Issue Date</label>
-                        <input type="date" name="issue_date" required value="{{ old('issue_date', now()->format('Y-m-d')) }}">
+                        <input type="date" name="issue_date" required
+                            value="{{ old('issue_date', now()->format('Y-m-d')) }}">
                     </div>
 
                     <div>
@@ -363,11 +376,15 @@
                         <span>Discount</span>
                         <div class="discount-controls">
                             <select name="discount_type" id="discount_type">
-                                <option value="" {{ in_array(old('discount_type'), [null, ''], true) ? 'selected' : '' }}>None</option>
-                                <option value="percentage" {{ old('discount_type') === 'percentage' ? 'selected' : '' }}>%</option>
-                                <option value="fixed" {{ old('discount_type') === 'fixed' ? 'selected' : '' }}>TZS</option>
+                                <option value=""
+                                    {{ in_array(old('discount_type'), [null, ''], true) ? 'selected' : '' }}>None</option>
+                                <option value="percentage" {{ old('discount_type') === 'percentage' ? 'selected' : '' }}>%
+                                </option>
+                                <option value="fixed" {{ old('discount_type') === 'fixed' ? 'selected' : '' }}>TZS
+                                </option>
                             </select>
-                            <input type="number" name="discount_value" id="discount_value" value="{{ old('discount_value', 0) }}" min="0" step="0.01">
+                            <input type="number" name="discount_value" id="discount_value"
+                                value="{{ old('discount_value', 0) }}" min="0" step="0.01">
                         </div>
                     </div>
                     <div class="row">
@@ -377,7 +394,9 @@
 
                     <div class="row">
                         <span>Tax (%)</span>
-                        <input type="number" name="tax_percentage" id="tax_percentage" value="{{ old('tax_percentage', 0) }}" min="0" max="100" step="0.1" style="width:80px; text-align:right;">
+                        <input type="number" name="tax_percentage" id="tax_percentage"
+                            value="{{ old('tax_percentage', 0) }}" min="0" max="100" step="0.1"
+                            style="width:80px; text-align:right;">
                     </div>
                     <div class="row">
                         <span>Tax Amount</span>
@@ -391,7 +410,30 @@
 
                 <hr class="divider">
 
+                @php
+                    $allMethods = config('payment_methods');
+                    // After a failed validation use what was ticked; otherwise use the defaults
+                    $selectedMethods = session()->hasOldInput()
+                        ? (array) old('payment_methods', [])
+                        : collect($allMethods)->filter(fn($m) => $m['default'])->keys()->all();
+                @endphp
+
                 <div class="form-grid">
+                    <div class="full">
+                        <label>Payment Info to Display on Invoice</label>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                            @foreach ($allMethods as $key => $method)
+                                <label
+                                    style="display:flex; align-items:center; gap:8px; font-weight:500; margin-bottom:0; cursor:pointer;">
+                                    <input type="checkbox" name="payment_methods[]" value="{{ $key }}"
+                                        style="width:auto; padding:0;"
+                                        {{ in_array($key, $selectedMethods) ? 'checked' : '' }}>
+                                    {{ $method['label'] }}
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <div class="full">
                         <label>Notes / Terms (optional)</label>
                         <textarea name="notes" rows="4" placeholder="e.g. Payments can be made in two installments of 70% and 30%.">{{ old('notes') }}</textarea>
@@ -409,8 +451,10 @@
     <template id="row-template">
         <tr class="item-row">
             <td><input type="text" name="items[__i__][description]" required></td>
-            <td><input type="number" name="items[__i__][quantity]" class="qty-input" value="1" min="0" step="0.01" required></td>
-            <td><input type="number" name="items[__i__][rate]" class="rate-input" value="0" min="0" step="0.01" required></td>
+            <td><input type="number" name="items[__i__][quantity]" class="qty-input" value="1" min="0"
+                    step="0.01" required></td>
+            <td><input type="number" name="items[__i__][rate]" class="rate-input" value="0" min="0"
+                    step="0.01" required></td>
             <td class="amount-cell">TZS 0.00</td>
             <td><button type="button" class="remove-row">&times;</button></td>
         </tr>
@@ -425,7 +469,10 @@
         const taxPercentageInput = document.getElementById('tax_percentage');
 
         function formatMoney(n) {
-            return 'TZS ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return 'TZS ' + n.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
 
         function addRow() {
@@ -476,13 +523,13 @@
         discountType.addEventListener('change', recalculate);
         discountValue.addEventListener('input', recalculate);
 
-        itemsBody.addEventListener('input', function (e) {
+        itemsBody.addEventListener('input', function(e) {
             if (e.target.classList.contains('qty-input') || e.target.classList.contains('rate-input')) {
                 recalculate();
             }
         });
 
-        itemsBody.addEventListener('click', function (e) {
+        itemsBody.addEventListener('click', function(e) {
             if (e.target.classList.contains('remove-row')) {
                 e.target.closest('.item-row').remove();
                 recalculate();

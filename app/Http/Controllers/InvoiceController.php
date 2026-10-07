@@ -7,6 +7,7 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule; // NEW
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
@@ -24,8 +25,6 @@ class InvoiceController extends Controller
         }
 
         if ($request->filled('status')) {
-            // payment_status is a computed accessor, not a DB column, so we
-            // filter in memory against the (already search-filtered) result set.
             $matching = $query->get()
                 ->filter(fn($invoice) => $invoice->payment_status === $request->status)
                 ->values();
@@ -44,7 +43,6 @@ class InvoiceController extends Controller
             $invoices = $query->paginate(10)->withQueryString();
         }
 
-        // Company-wide totals, independent of search/status filters or pagination.
         $totalBilled = (float) Invoice::sum('total_amount');
         $totalPaid = (float) Payment::sum('amount');
         $totalOutstanding = max($totalBilled - $totalPaid, 0);
@@ -76,6 +74,7 @@ class InvoiceController extends Controller
                 'discount_value' => $validated['discount_value'] ?? 0,
                 'tax_percentage' => $validated['tax_percentage'] ?? 0,
                 'notes' => $validated['notes'] ?? null,
+                'payment_methods' => $validated['payment_methods'] ?? [], // NEW
                 'created_by' => auth()->id(),
             ]);
 
@@ -136,6 +135,7 @@ class InvoiceController extends Controller
                 'discount_value' => $validated['discount_value'] ?? 0,
                 'tax_percentage' => $validated['tax_percentage'] ?? 0,
                 'notes' => $validated['notes'] ?? null,
+                'payment_methods' => $validated['payment_methods'] ?? [], // NEW
             ]);
 
             $invoice->items()->delete();
@@ -165,36 +165,12 @@ class InvoiceController extends Controller
 
     public function download(Invoice $invoice)
     {
-        $invoice->load('items');
-
-        $pdf = Pdf::setOptions([
-            'isRemoteEnabled' => false,
-            'isPhpEnabled' => true,
-            'defaultFont' => 'DejaVu Sans',
-            'dpi' => 96,
-            'enable_php' => true,
-            'isHtml5ParserEnabled' => true,
-            'chroot' => public_path(),
-        ])->loadView('invoices.pdf', compact('invoice'));
-
-        return $pdf->download($invoice->invoice_number . '.pdf');
+        return $this->buildPdf($invoice)->download($invoice->invoice_number . '.pdf');
     }
 
     public function preview(Invoice $invoice)
     {
-        $invoice->load('items');
-
-        $pdf = Pdf::setOptions([
-            'isRemoteEnabled' => false,
-            'isPhpEnabled' => true,
-            'defaultFont' => 'DejaVu Sans',
-            'dpi' => 96,
-            'enable_php' => true,
-            'isHtml5ParserEnabled' => true,
-            'chroot' => public_path(),
-        ])->loadView('invoices.pdf', compact('invoice'));
-
-        return $pdf->stream($invoice->invoice_number . '.pdf');
+        return $this->buildPdf($invoice)->stream($invoice->invoice_number . '.pdf');
     }
 
     /*
@@ -202,6 +178,22 @@ class InvoiceController extends Controller
     | Helpers
     |--------------------------------------------------------------------------
     */
+
+    // NEW: shared by download() and preview() so the options live in one place
+    private function buildPdf(Invoice $invoice)
+    {
+        $invoice->load('items');
+
+        return Pdf::setOptions([
+            'isRemoteEnabled' => false,
+            'isPhpEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+            'dpi' => 96,
+            'enable_php' => true,
+            'isHtml5ParserEnabled' => true,
+            'chroot' => public_path(),
+        ])->loadView('invoices.pdf', compact('invoice'));
+    }
 
     private function validateInvoice(Request $request): array
     {
@@ -220,6 +212,8 @@ class InvoiceController extends Controller
             'discount_value' => ['nullable', 'numeric', 'min:0'],
             'tax_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'notes' => ['nullable', 'string'],
+            'payment_methods' => ['nullable', 'array'], // NEW
+            'payment_methods.*' => [Rule::in(array_keys(config('payment_methods')))], // NEW
             'items' => ['required', 'array', 'min:1'],
             'items.*.description' => ['required', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'numeric', 'min:0'],

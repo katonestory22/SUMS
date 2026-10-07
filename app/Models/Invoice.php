@@ -24,17 +24,19 @@ class Invoice extends Model
         'total_amount',
         'notes',
         'created_by',
+        'payment_methods',
     ];
 
     protected $casts = [
-        'issue_date'      => 'date',
-        'due_date'        => 'date',
-        'subtotal'        => 'decimal:2',
-        'discount_value'  => 'decimal:2',
+        'issue_date' => 'date',
+        'due_date' => 'date',
+        'subtotal' => 'decimal:2',
+        'discount_value' => 'decimal:2',
         'discount_amount' => 'decimal:2',
-        'tax_percentage'  => 'decimal:2',
-        'tax_amount'      => 'decimal:2',
-        'total_amount'    => 'decimal:2',
+        'tax_percentage' => 'decimal:2',
+        'tax_amount' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'payment_methods'=> 'array',
     ];
 
     /*
@@ -175,10 +177,22 @@ class Invoice extends Model
         );
 
         $this->update([
-            'subtotal'        => $subtotal,
+            'subtotal' => $subtotal,
             'discount_amount' => $discountAmount,
-            'tax_amount'      => $taxAmount,
-            'total_amount'    => $discountedSubtotal + $taxAmount,
+            'tax_amount' => $taxAmount,
+            'total_amount' => $discountedSubtotal + $taxAmount,
         ]);
     }
+
+    public function selectedPaymentMethods()
+    {
+        $all = collect(config('payment_methods'));
+
+        // Old invoices (null) fall back to the defaults
+        $keys = $this->payment_methods
+            ?? $all->filter(fn($m) => $m['default'])->keys()->all();
+
+        return $all->only($keys);
+    }
 }
+

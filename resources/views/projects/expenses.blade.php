@@ -5,7 +5,8 @@
 @section('page-title')
     <span class="contract-heading">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span class="contract-heading-text">{{ $project->contract_number }}</span>
     </span>
@@ -91,11 +92,31 @@
             white-space: nowrap;
         }
 
-        .status-active { background: #dcfce7; color: #166534; }
-        .status-completed { background: #dbeafe; color: #1e40af; }
-        .status-on_hold, .status-paused { background: #fef9c3; color: #854d0e; }
-        .status-cancelled { background: #fee2e2; color: #991b1b; }
-        .status-default { background: #f3f4f6; color: #4b5563; }
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-on_hold,
+        .status-paused {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-default {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
 
         .client-row {
             display: flex;
@@ -143,9 +164,17 @@
         }
 
         @keyframes pulse-dot {
-            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
-            70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55);
+            }
+
+            70% {
+                box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
         }
 
         /* ---------- Stat cards ---------- */
@@ -157,7 +186,9 @@
         }
 
         @media (max-width: 800px) {
-            .stats-grid { grid-template-columns: 1fr; }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .stat-card {
@@ -195,10 +226,21 @@
             color: #9ca3af;
         }
 
-        .stat-card.allocated .stat-value { color: #1f3a5f; }
-        .stat-card.spent .stat-value { color: #b45309; }
-        .stat-card.balance .stat-value { color: #166534; }
-        .stat-card.balance.low .stat-value { color: #b91c1c; }
+        .stat-card.allocated .stat-value {
+            color: #1f3a5f;
+        }
+
+        .stat-card.spent .stat-value {
+            color: #b45309;
+        }
+
+        .stat-card.balance .stat-value {
+            color: #166534;
+        }
+
+        .stat-card.balance.low .stat-value {
+            color: #b91c1c;
+        }
 
         .progress-track {
             margin-top: 12px;
@@ -221,12 +263,32 @@
             color: #9ca3af;
         }
 
-        /* ---------- Expense feed ---------- */
+        /* ---------- Flash messages ---------- */
+        .alert {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* ---------- Expense feed header + add-expense control ---------- */
         .feed-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
             padding: 0 2px;
         }
 
@@ -236,104 +298,288 @@
             color: #111827;
         }
 
-        .expense-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
-            padding: 0 0 24px;
+        .add-expense-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        @media (max-width: 768px) {
-            .expense-grid {
-                grid-template-columns: 1fr;
-            }
+        .add-expense-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #1f3a5f;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
         }
 
-        .expense-card {
+        .add-expense-btn:hover {
+            background: #16283f;
+        }
+
+        .add-expense-btn.disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .allocation-picker {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .allocation-picker select {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            max-width: 260px;
+        }
+
+        .no-allocation-note {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .no-allocation-note a {
+            color: #1f3a5f;
+            font-weight: 600;
+        }
+
+        /* ---------- Expense table ---------- */
+        .table-card {
             background: #ffffff;
             border-radius: 16px;
-            padding: 18px 18px 16px;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-            transition: all .18s ease;
-            border: 1px solid rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            margin-bottom: 24px;
         }
 
-        .expense-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+        table.expense-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .amount {
-            font-size: 18px;
+        .expense-table thead {
+            background: #1f3a5f;
+        }
+
+        .expense-table th {
+            color: #C9A84C;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 16px;
+            text-align: left;
             font-weight: 700;
-            color: #2563eb;
-            letter-spacing: 0.2px;
         }
 
-        .meta {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 4px;
+        .expense-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px;
+            color: #374151;
+            vertical-align: middle;
         }
 
-        .desc {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #111827;
-            line-height: 1.5;
+        .expense-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
-        .receipt {
-            margin-top: 12px;
-            font-size: 12px;
+        .expense-table tbody tr:hover td {
+            background: #f9fafb;
         }
 
-        .receipt a {
+        .category-badge {
             display: inline-block;
-            padding: 6px 10px;
-            border-radius: 8px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #eef2ff;
+            color: #3730a3;
+        }
+
+        .amount-cell {
+            font-weight: 700;
+            color: #b45309;
+            white-space: nowrap;
+        }
+
+        .receipt-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
             background: #eef2ff;
             color: #3730a3;
             text-decoration: none;
+            font-size: 12px;
             font-weight: 600;
-            transition: 0.15s ease;
         }
 
-        .receipt a:hover {
+        .receipt-link:hover {
             background: #e0e7ff;
         }
 
-        .empty-receipt {
-            color: #9ca3af;
+        .no-receipt {
             font-size: 12px;
-            padding: 6px 0;
+            color: #9ca3af;
         }
 
-        .loader {
-            text-align: center;
-            padding: 20px;
+        .recorded-by {
+            font-size: 12px;
             color: #6b7280;
+        }
+
+        .delete-btn {
+            background: #fff;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .delete-btn:hover {
+            background: #fef2f2;
+        }
+
+        .empty-row {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
             font-size: 13px;
         }
 
-        .expense-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
+        .pagination-wrap {
+            margin-bottom: 24px;
         }
 
-        .expense-index {
-            font-size: 12px;
+        /* ---------- Delete confirmation modal ---------- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 380px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 28px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-icon {
+            width: 48px;
+            height: 48px;
+            background: #fef2f2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 22px;
+        }
+
+        .modal-box h2 {
+            font-size: 18px;
             font-weight: 700;
-            color: #9ca3af;
-            letter-spacing: 0.5px;
+            color: #111827;
+            margin: 0 0 8px;
+        }
+
+        .modal-box p {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 0 0 24px;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-cancel {
+            flex: 1;
+            padding: 11px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #374151;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .modal-cancel:hover {
+            background: #f3f4f6;
+        }
+
+        .modal-confirm {
+            flex: 1;
+            padding: 11px;
+            border-radius: 8px;
+            border: none;
+            background: #dc2626;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .modal-confirm:hover {
+            background: #b91c1c;
+        }
+
+        @media (max-width: 760px) {
+            .table-card {
+                overflow-x: auto;
+            }
+
+            .expense-table {
+                min-width: 760px;
+            }
         }
     </style>
 
     <div class="page-wrap">
 
-        {{-- Overview: contract, client, status --}}
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-error">{{ session('error') }}</div>
+        @endif
+
+        {{-- Overview: project name, status, client --}}
         <div class="overview-card">
             <div class="overview-top">
                 <div>
@@ -389,7 +635,7 @@
                 $spent = $project->totalExpenses();
                 $balance = $project->remainingBalance();
                 $pct = $allocated > 0 ? min(100, round(($spent / $allocated) * 100, 1)) : 0;
-                $isLow = $allocated > 0 && $balance <= ($allocated * 0.1);
+                $isLow = $allocated > 0 && $balance <= $allocated * 0.1;
             @endphp
 
             <div class="stat-card balance {{ $isLow ? 'low' : '' }}" id="balance-card">
@@ -402,51 +648,158 @@
             </div>
         </div>
 
-        {{-- Expense feed --}}
+        {{-- Expense feed: header + add-expense control --}}
         <div class="feed-header">
             <span class="feed-title">Expenses</span>
+
+            @php
+                $allocations = $project->allocations;
+                $canDelete = in_array(auth()->user()->role, ['finance', 'director', 'admin'], true);
+            @endphp
+
+            <div class="add-expense-bar">
+                @if ($allocations->isEmpty())
+                    <span class="no-allocation-note">
+                        No income allocated yet — <a href="{{ route('allocations.create') }}">add an allocation first</a>
+                    </span>
+                @elseif ($allocations->count() === 1)
+                    <a href="{{ route('expenses.create', $allocations->first()->id) }}" class="add-expense-btn">
+                        + Add Expense
+                    </a>
+                @else
+                    <div class="allocation-picker">
+                        <select id="allocation-select">
+                            <option value="">Charge to allocation…</option>
+                            @foreach ($allocations as $alloc)
+                                @php
+                                    $allocRemaining = $alloc->amount - $alloc->expenses->sum('amount');
+                                @endphp
+                                <option value="{{ route('expenses.create', $alloc->id) }}">
+                                    {{ \Carbon\Carbon::parse($alloc->allocation_date)->format('M j, Y') }}
+                                    — TZS {{ number_format($allocRemaining, 0) }} remaining
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="button" class="add-expense-btn" id="allocation-go-btn">+ Add Expense</button>
+                    </div>
+                @endif
+            </div>
         </div>
 
-        <div class="expense-grid" id="expenseGrid">
-            @include('projects.partials.expense_cards')
+        <div class="table-card">
+            <table class="expense-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Receipt</th>
+                        <th>Recorded By</th>
+                        @if ($canDelete)
+                            <th>Actions</th>
+                        @endif
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($expenses as $expense)
+                        <tr>
+                            <td>{{ \Carbon\Carbon::parse($expense->date)->format('M j, Y') }}</td>
+                            <td><span class="category-badge">{{ $expense->category ?? 'Uncategorized' }}</span></td>
+                            <td>{{ $expense->description }}</td>
+                            <td class="amount-cell">TZS {{ number_format($expense->amount, 2) }}</td>
+                            <td>
+                                @if ($expense->receipt)
+                                    <a href="{{ asset('storage/' . $expense->receipt) }}" target="_blank"
+                                        class="receipt-link">
+                                        &#128206; View
+                                    </a>
+                                @else
+                                    <span class="no-receipt">No receipt</span>
+                                @endif
+                            </td>
+                            <td class="recorded-by">{{ $expense->user->name ?? '—' }}</td>
+                            @if ($canDelete)
+                                <td>
+                                    <form method="POST" action="{{ route('expenses.destroy', $expense) }}"
+                                        class="delete-expense-form" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" class="delete-btn"
+                                            onclick="openDeleteModal('{{ $expense->id }}', '{{ addslashes($expense->description) }}')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            @endif
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="{{ $canDelete ? 7 : 6 }}" class="empty-row">No expenses recorded for this project
+                                yet.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
-        <div class="loader" id="loader">Scroll to load more…</div>
+        <div class="pagination-wrap">
+            {{ $expenses->links() }}
+        </div>
+    </div>
+
+    {{-- DELETE MODAL --}}
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-box">
+            <div class="modal-icon">&#x26A0;</div>
+            <h2>Delete Expense</h2>
+            <p>Are you sure you want to delete <strong id="expenseDescription"></strong>? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button type="button" class="modal-confirm" onclick="submitDelete()">Yes, Delete</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // ---------- Infinite scroll (unchanged behaviour) ----------
-        let page = 2;
-        let loading = false;
-        let hasMore = true;
+        // ---------- Delete modal ----------
+        let activeDeleteForm = null;
 
-        window.addEventListener('scroll', async () => {
-            if (loading || !hasMore) return;
+        function openDeleteModal(id, description) {
+            const forms = document.querySelectorAll('.delete-expense-form');
+            activeDeleteForm = Array.from(forms).find(f => f.action.endsWith('/' + id));
+            document.getElementById('expenseDescription').innerText = description || 'this expense';
+            document.getElementById('deleteModal').classList.add('open');
+        }
 
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
-                loading = true;
+        function closeDeleteModal() {
+            activeDeleteForm = null;
+            document.getElementById('deleteModal').classList.remove('open');
+        }
 
-                const res = await fetch(`?page=${page}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
+        function submitDelete() {
+            if (activeDeleteForm) activeDeleteForm.submit();
+        }
 
-                const html = await res.text();
-
-                if (!html.trim()) {
-                    hasMore = false;
-                    document.getElementById('loader').innerText = "No more expenses";
-                    return;
-                }
-
-                document.getElementById('expenseGrid')
-                    .insertAdjacentHTML('beforeend', html);
-
-                page++;
-                loading = false;
-            }
+        window.addEventListener('click', function(e) {
+            if (e.target === document.getElementById('deleteModal')) closeDeleteModal();
         });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeDeleteModal();
+        });
+
+        // ---------- Add Expense allocation picker ----------
+        const allocationSelect = document.getElementById('allocation-select');
+        const allocationGoBtn = document.getElementById('allocation-go-btn');
+
+        if (allocationGoBtn) {
+            allocationGoBtn.addEventListener('click', function() {
+                if (allocationSelect.value) {
+                    window.location.href = allocationSelect.value;
+                }
+            });
+        }
 
         // ---------- Live-refreshing financial stats ----------
         const allocatedEl = document.getElementById('stat-allocated');
@@ -457,7 +810,10 @@
         const progressCaption = document.getElementById('progress-caption');
 
         function formatMoney(n) {
-            return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return Number(n).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
 
         function flash(el) {
@@ -468,7 +824,9 @@
         async function refreshStats() {
             try {
                 const res = await fetch(`{{ route('projects.expenses', $project) }}?stats=1`, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 });
 
                 if (!res.ok) return;

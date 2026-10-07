@@ -28,11 +28,9 @@ class ExpenseController extends Controller
 
         $categories = [
             'Labour',
-            'Equipment',
-            'Travel',
-            'Operations',
-            'Consulting',
-            'Miscellaneous'
+            'Materials',
+            'Services',
+            'Transport',
         ];
 
         return view('expenses.create', compact('allocation', 'remaining', 'categories'));
@@ -43,11 +41,9 @@ class ExpenseController extends Controller
         $expense->load('allocation.project');
         $categories = [
             'Labour',
-            'Equipment',
-            'Travel',
-            'Operations',
-            'Consulting',
-            'Miscellaneous'
+            'Materials',
+            'Services',
+            'Transport',
         ];
         $spent = $expense->allocation->expenses()->sum('amount');
         $remaining = $expense->allocation->amount - $spent;
@@ -106,10 +102,14 @@ class ExpenseController extends Controller
 
     public function destroy(Expense $expense)
     {
+        if ($expense->receipt) {
+            Storage::disk('public')->delete($expense->receipt);
+        }
+
         $expense->delete();
 
         return redirect()
-            ->route('expenses.index')
+            ->back()
             ->with('success', 'Expense deleted successfully.');
     }
 

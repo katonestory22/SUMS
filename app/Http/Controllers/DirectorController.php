@@ -78,11 +78,9 @@ class DirectorController extends Controller
         */
         $categories = [
             'Labour',
-            'Equipment',
-            'Travel',
-            'Operations',
-            'Consulting',
-            'Miscellaneous'
+            'Materials',
+            'Services',
+            'Transport',
         ];
 
         $rawExpenses = Expense::selectRaw(

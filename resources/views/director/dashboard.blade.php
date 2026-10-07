@@ -8,7 +8,7 @@
     <a href="{{ route('director.users') }}">Users</a>
     <a href="{{ route('reports.index') }}">Reports</a>
     <a href="{{ route('director.audit') }}">Audit Log</a>
-     <a href="{{ route('invoices.index') }}">Invoices</a>
+    <a href="{{ route('invoices.index') }}">Invoices</a>
 @endsection
 
 @section('content')
@@ -295,7 +295,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($projects as $project)
+                @foreach ($projects->take(8) as $project)
                     @php
                         $progress = $project->progress;
                         $allocated = $project->totalAllocated();
@@ -441,7 +441,7 @@
                 labels: @json($expenseByCategory->keys()),
                 datasets: [{
                     data: @json($expenseByCategory->values()),
-                    backgroundColor: ['#2563eb', '#dc2626', '#f59e0b', '#16a34a', '#8b5cf6', '#6b7280'],
+                    backgroundColor: ['#2563eb', '#dc2626', '#f59e0b', '#16a34a'],
                     borderWidth: 0
                 }]
             },

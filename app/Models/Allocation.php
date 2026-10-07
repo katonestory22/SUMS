@@ -22,4 +22,9 @@ class Allocation extends Model
     {
         return $this->hasMany(Expense::class);
     }
+
+    public function topups()
+    {
+        return $this->hasMany(AllocationTopup::class)->latest('received_date');
+    }
 }

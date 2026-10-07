@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <style>
@@ -144,7 +145,8 @@
             margin-bottom: 8px;
         }
 
-        .notes-list, .terms-block {
+        .notes-list,
+        .terms-block {
             font-size: 11px;
             color: #4b5563;
             line-height: 1.6;
@@ -157,6 +159,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <table class="header-table">
@@ -260,28 +263,23 @@
         <div class="notes-list">{!! nl2br(e($invoice->notes)) !!}</div>
     @endif
 
-    {{-- Hardcoded payment terms / payment instructions block --}}
-    <div class="section-title">Terms</div>
-    <div class="terms-block">
-        <div style="font-weight:bold;">Payment Modes.</div>
+    {{-- Payment info: only the accounts ticked on the invoice (defaults for old invoices) --}}
+    @php $methods = $invoice->selectedPaymentMethods(); @endphp
 
-        <div class="payment-mode">1. Bank</div>
-        Bank Name: Stanbic Bank<br>
-        Account Number (TZS): 9120003763372<br>
-        Account Number (USD): 9120003764085<br>
-        Account Name: Swahili Units<br>
-        <br>
-        Bank Name: CRDB<br>
-        Account Number (TZS): 0152460276700<br>
-        Account Name: Julius Deus Kato
+    @if ($methods->isNotEmpty())
+        <div class="section-title">Terms</div>
+        <div class="terms-block">
+            <div style="font-weight:bold;">Payment Modes.</div>
 
-        <div class="payment-mode">2. Mobile Money</div>
-        Phone Numbers: +255762156762<br>
-        Lipa Number (Voda): 5573030
-
-        <div class="payment-mode">3. Cash</div>
-
-    </div>
+            @foreach ($methods as $method)
+                <div class="payment-mode">{{ $loop->iteration }}. {{ $method['label'] }}</div>
+                @foreach ($method['lines'] as $label => $value)
+                    {{ $label }}: {{ $value }}<br>
+                @endforeach
+            @endforeach
+        </div>
+    @endif
 
 </body>
+
 </html>

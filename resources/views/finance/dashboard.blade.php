@@ -429,7 +429,7 @@
                 labels: {!! json_encode($expenseByCategory->pluck('category')) !!},
                 datasets: [{
                     data: {!! json_encode($expenseByCategory->pluck('total')) !!},
-                    backgroundColor: ['#2563eb', '#dc2626', '#f59e0b', '#16a34a', '#8b5cf6', '#6b7280'],
+                    backgroundColor: ['#2563eb', '#dc2626', '#f59e0b', '#16a34a'],
                     borderWidth: 0,
                     hoverOffset: 6,
                 }]

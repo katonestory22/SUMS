@@ -26,11 +26,9 @@ class FinanceController extends Controller
 
         $categories = [
             'Labour',
-            'Equipment',
-            'Travel',
-            'Operations',
-            'Consulting',
-            'Miscellaneous'
+            'Materials',
+            'Services',
+            'Transport',
         ];
 
         $cashflow = [

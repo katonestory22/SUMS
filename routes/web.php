@@ -65,7 +65,11 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
     Route::resource('allocations', AllocationController::class);
 
-    Route::resource('expenses', ExpenseController::class)->except(['create']);
+    Route::resource('expenses', ExpenseController::class)->except(['create', 'destroy']);
+
+    Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])
+        ->name('expenses.destroy')
+        ->middleware('role:finance,director,admin');
 
     Route::get('expenses/create/{allocation}', [ExpenseController::class, 'create'])
         ->name('expenses.create');
@@ -208,6 +212,8 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         ->name('allocations.edit');
     Route::put('allocations/{allocation}', [AllocationController::class, 'update'])
         ->name('allocations.update');
+    Route::delete('allocation-topups/{topup}', [AllocationController::class, 'destroyTopup'])
+        ->name('allocations.topups.destroy');
 
 
     /*

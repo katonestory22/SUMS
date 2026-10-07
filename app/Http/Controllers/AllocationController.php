@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Allocation;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use App\Models\AllocationTopup;
+use Illuminate\Support\Facades\DB;
 
 class AllocationController extends Controller
 {
@@ -91,7 +93,20 @@ class AllocationController extends Controller
             ])->withInput();
         }
 
-        $allocation->update($validated);
+        $difference = $validated['amount'] - $allocation->amount;
+
+        DB::transaction(function () use ($allocation, $validated, $difference) {
+            if ($difference != 0) {
+                $allocation->topups()->create([
+                    'amount' => $difference,
+                    'received_date' => $validated['allocation_date'],
+                    'notes' => 'Manual adjustment (edit)',
+                    'recorded_by' => auth()->id(),
+                ]);
+            }
+
+            $allocation->update($validated);
+        });
 
         return redirect()
             ->route('allocations.index')
@@ -109,9 +124,8 @@ class AllocationController extends Controller
 
     public function store(Request $request)
     {
-        $request->merge([
-            'amount' => str_replace(',', '', $request->amount),
-        ]);
+        $request->merge(['amount' => str_replace(',', '', $request->amount)]);
+
         $validated = $request->validate([
             'project_id' => ['required', 'exists:projects,id'],
             'amount' => ['required', 'numeric', 'min:1'],
@@ -121,25 +135,39 @@ class AllocationController extends Controller
 
         $project = Project::findOrFail($validated['project_id']);
 
-        // Total allocations already made
-        $totalAllocated = Allocation::where('project_id', $project->id)
-            ->sum('amount');
-
-        $remainingContract = $project->contract_amount - $totalAllocated;
+        $existing = (float) Allocation::where('project_id', $project->id)->value('amount');
+        $remainingContract = $project->contract_amount - $existing;
 
         if ($validated['amount'] > $remainingContract) {
-            return back()
-                ->withErrors([
-                    'amount' => 'Allocation exceeds remaining contract balance of ' . number_format($remainingContract, 2),
-                ])
-                ->withInput();
+            return back()->withErrors([
+                'amount' => 'Allocation exceeds remaining contract balance of ' . number_format($remainingContract, 2),
+            ])->withInput();
         }
 
-        Allocation::create($validated);
+        DB::transaction(function () use ($validated, $project) {
+            $allocation = Allocation::firstOrCreate(
+                ['project_id' => $project->id],
+                ['amount' => 0, 'allocation_date' => $validated['allocation_date']]
+            );
+
+            // Log this income
+            $allocation->topups()->create([
+                'amount' => $validated['amount'],
+                'received_date' => $validated['allocation_date'],
+                'notes' => $validated['notes'] ?? null,
+                'recorded_by' => auth()->id(),
+            ]);
+
+            // Add to the running total on the same line
+            $allocation->update([
+                'amount' => $allocation->amount + $validated['amount'],
+                'allocation_date' => $validated['allocation_date'], // latest income date
+            ]);
+        });
 
         return redirect()
             ->route('allocations.index')
-            ->with('success', 'Allocation recorded successfully.');
+            ->with('success', 'Income added to the project allocation.');
     }
 
     public function show(Allocation $allocation)
@@ -147,6 +175,7 @@ class AllocationController extends Controller
         $allocation->load([
             'project.client',
             'expenses',
+            'topups.user'
         ]);
 
         $totalExpenses = $allocation->expenses->sum('amount');
@@ -173,5 +202,50 @@ class AllocationController extends Controller
         return redirect()
             ->route('allocations.index')
             ->with('success', 'Allocation deleted successfully.');
+    }
+
+
+    public function destroyTopup(AllocationTopup $topup)
+    {
+        $allocation = $topup->allocation()->with('project')->first();
+
+        $newAmount = $allocation->amount - $topup->amount;
+        $spent = $allocation->expenses()->sum('amount');
+
+        // Can't remove income that has already been spent
+        if ($newAmount < $spent) {
+            return back()->with(
+                'error',
+                'Cannot delete: remaining income would be TSh ' . number_format($newAmount, 0)
+                . ' but TSh ' . number_format($spent, 0) . ' is already spent.'
+            );
+        }
+
+        // Safety for deleting a negative adjustment
+        if ($newAmount > $allocation->project->contract_amount) {
+            return back()->with('error', 'Cannot delete: total would exceed the contract amount.');
+        }
+
+        DB::transaction(function () use ($topup, $allocation, $newAmount) {
+            $topup->delete();
+
+            // Nothing left and no expenses: remove the empty allocation line
+            if ($allocation->topups()->count() === 0 && $allocation->expenses()->count() === 0) {
+                $allocation->delete();
+                return;
+            }
+
+            $allocation->update([
+                'amount' => $newAmount,
+                'allocation_date' => $allocation->topups()->max('received_date') ?? $allocation->allocation_date,
+            ]);
+        });
+
+        if (!Allocation::whereKey($allocation->id)->exists()) {
+            return redirect()->route('allocations.index')
+                ->with('success', 'Income deleted and the empty allocation removed.');
+        }
+
+        return back()->with('success', 'Income entry deleted and totals updated.');
     }
 }

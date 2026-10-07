@@ -542,7 +542,7 @@
             @forelse ($project->allocations as $allocation)
                 <div class="list-item">
                     <div class="list-item-left">
-                        <div class="list-item-title">{{ $allocation->category }}</div>
+                        <div class="list-item-title">{{ $allocation->notes ?: 'Allocation' }}</div>
                         <div class="list-item-meta">
                             {{ \Carbon\Carbon::parse($allocation->allocation_date)->format('d M Y') }}</div>
                     </div>
