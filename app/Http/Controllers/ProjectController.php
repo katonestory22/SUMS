@@ -14,7 +14,8 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Project::with(['client', 'type', 'allocations.expenses']);
+        $query = Project::with(['client', 'type', 'allocations.expenses'])
+            ->withSum('allocations as total_allocated', 'amount');
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -30,6 +31,33 @@ class ProjectController extends Controller
         if ($request->filled('type')) {
             $query->where('project_type_id', $request->type);
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sort projects by progress
+        |--------------------------------------------------------------------------
+        | Progress is calculated in the Blade as:
+        |
+        |     total expenses / contract amount * 100
+        |
+        | We therefore calculate the same value in SQL so sorting happens
+        | BEFORE pagination.
+        |--------------------------------------------------------------------------
+        */
+
+        $query->orderByRaw("
+        CASE
+            WHEN contract_amount > 0 THEN
+                (
+                    SELECT COALESCE(SUM(expenses.amount), 0)
+                    FROM allocations
+                    INNER JOIN expenses
+                        ON expenses.allocation_id = allocations.id
+                    WHERE allocations.project_id = projects.id
+                ) / contract_amount
+            ELSE 0
+        END DESC
+    ");
 
         $projects = $query->paginate(5)->withQueryString();
 
@@ -69,7 +97,11 @@ class ProjectController extends Controller
             'Zanzibar West'
         ];
 
-        return view('projects.index', compact('projects', 'projectTypes', 'regions'));
+        return view('projects.index', compact(
+            'projects',
+            'projectTypes',
+            'regions'
+        ));
     }
 
     public function create()

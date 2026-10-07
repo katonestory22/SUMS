@@ -631,16 +631,24 @@
         {{-- SUMMARY --}}
         <div class="summary">
             <div class="stat s-blue">
-                <div class="stat-label">Total Income</div>
-                <div class="stat-value c-blue">TSh {{ number_format($allocation->amount, 0) }}</div>
+                <div class="stat-label">Total Allocated</div>
+                <div class="stat-value c-blue">
+                    TSh {{ number_format($totalAllocated, 0) }}
+                </div>
             </div>
+
             <div class="stat s-red">
                 <div class="stat-label">Spent</div>
-                <div class="stat-value c-red">TSh {{ number_format($totalExpenses, 0) }}</div>
+                <div class="stat-value c-red">
+                    TSh {{ number_format($totalExpenses, 0) }}
+                </div>
             </div>
+
             <div class="stat s-green">
                 <div class="stat-label">Remaining</div>
-                <div class="stat-value c-green">TSh {{ number_format($remaining, 0) }}</div>
+                <div class="stat-value c-green">
+                    TSh {{ number_format($remaining, 0) }}
+                </div>
             </div>
         </div>
 

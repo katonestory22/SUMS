@@ -135,7 +135,7 @@ class AllocationController extends Controller
 
         $project = Project::findOrFail($validated['project_id']);
 
-        $existing = (float) Allocation::where('project_id', $project->id)->value('amount');
+        $existing = (float) Allocation::where('project_id', $project->id)->sum('amount');
         $remainingContract = $project->contract_amount - $existing;
 
         if ($validated['amount'] > $remainingContract) {
@@ -175,15 +175,21 @@ class AllocationController extends Controller
         $allocation->load([
             'project.client',
             'expenses',
-            'topups.user'
+            'topups.user',
         ]);
 
+        // Total allocated = original allocation + all top-ups
+        $totalAllocated = $allocation->amount;
+
+        // Total spent from this allocation
         $totalExpenses = $allocation->expenses->sum('amount');
 
-        $remaining = $allocation->amount - $totalExpenses;
+        // Remaining balance
+        $remaining = $totalAllocated - $totalExpenses;
 
         return view('allocations.show', [
             'allocation' => $allocation,
+            'totalAllocated' => $totalAllocated,
             'totalExpenses' => $totalExpenses,
             'remaining' => $remaining,
         ]);
